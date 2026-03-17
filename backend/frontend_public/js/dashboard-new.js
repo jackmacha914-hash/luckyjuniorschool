@@ -487,7 +487,7 @@ const Dashboard = (() => {
     // Load initial data
 async function loadInitialData() {
     try {
-        const res = await fetch("https://julianbright.onrender.com/api/stats", {
+        const res = await fetch("https://luckyjuniorschool.onrender.com/api/stats", {
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 "Content-Type": "application/json"
@@ -532,7 +532,7 @@ async function loadInitialData() {
 
     async function fetchClubsCount() {
     try {
-        const res = await fetch("https://julianbright.onrender.com/api/clubs", {
+        const res = await fetch("https://luckyjuniorschool.onrender.com/api/clubs", {
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
             }

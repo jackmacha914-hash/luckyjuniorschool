@@ -12,7 +12,7 @@ const API_CONFIG = (() => {
         API_BASE_URL: 'http://localhost:5000/api',
       }
     : {
-        BASE_URL: window.location.origin, // dynamic (e.g. https://julianbright.onrender.com)
+        BASE_URL: window.location.origin, // dynamic (e.g. https://luckyjuniorschool.onrender.com)
         API_BASE_URL: `${window.location.origin}/api`,
       };
 

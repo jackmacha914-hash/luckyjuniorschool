@@ -28,11 +28,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     // Example endpoints, adjust as needed
     const [userCount, clubCount, bookCount, feeCount, eventCount] = await Promise.all([
-        fetchCount('https://julianbright.onrender.com/api/users'),
-        fetchCount('https://julianbright.onrender.com/api/clubs'),
-        fetchCount('https://julianbright.onrender.com/api/library'),
-        fetchCount('https://julianbright.onrender.com/api/fees'),
-        fetchCount('https://julianbright.onrender.com/api/events'),
+        fetchCount('https://luckyjuniorschool.onrender.com/api/users'),
+        fetchCount('https://luckyjuniorschool.onrender.com/api/clubs'),
+        fetchCount('https://luckyjuniorschool.onrender.com/api/library'),
+        fetchCount('https://luckyjuniorschool.onrender.com/api/fees'),
+        fetchCount('https://luckyjuniorschool.onrender.com/api/events'),
     ]);
 
     // Users Chart

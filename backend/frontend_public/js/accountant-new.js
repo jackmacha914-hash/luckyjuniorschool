@@ -111,7 +111,7 @@ async function handleClassChange(event) {
     try {
         // Try to fetch students from the API
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://julianbright.onrender.com/api/students/class/${encodeURIComponent(className)}`, {
+        const response = await fetch(`https://luckyjuniorschool.onrender.com/api/students/class/${encodeURIComponent(className)}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -552,7 +552,7 @@ feeForm.addEventListener('submit', async (e) => {
     }
 
     try {
-      const res = await fetch(`https://julianbright.onrender.com/api/fees`, {
+      const res = await fetch(`https://luckyjuniorschool.onrender.com/api/fees`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -570,7 +570,7 @@ feeForm.addEventListener('submit', async (e) => {
   } else {
     // Whole Class
     try {
-      const resStudents = await fetch(`https://julianbright.onrender.com/api/students/class/${encodeURIComponent(feeData.className)}`, {
+      const resStudents = await fetch(`https://luckyjuniorschool.onrender.com/api/students/class/${encodeURIComponent(feeData.className)}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -581,7 +581,7 @@ feeForm.addEventListener('submit', async (e) => {
       // Send fee data for each student
       await Promise.all(students.map(async (s) => {
         const studentFeeData = { ...feeData, studentId: s.id };
-        const res = await fetch(`https://julianbright.onrender.com/api/fees`, {
+        const res = await fetch(`https://luckyjuniorschool.onrender.com/api/fees`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -623,7 +623,7 @@ feeForm.addEventListener('submit', async (e) => {
             console.log('Submitting form data:', formData);
             const token = localStorage.getItem('token');
             console.log('Sending request to server with data:', formData);
-            const response = await fetch('https://julianbright.onrender.com/api/fees', {
+            const response = await fetch('https://luckyjuniorschool.onrender.com/api/fees', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -802,7 +802,7 @@ async function loadFeeRecords() {
         }
 
         console.log('Fetching fee records from API...');
-        const response = await fetch('https://julianbright.onrender.com/api/fees', {
+        const response = await fetch('https://luckyjuniorschool.onrender.com/api/fees', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -1135,7 +1135,7 @@ async function loadFeeRecords() {
         
         // Get the current URL and API endpoint for debugging
         const currentUrl = window.location.href;
-        const apiUrl = 'https://julianbright.onrender.com/api/fees';
+        const apiUrl = 'https://luckyjuniorschool.onrender.com/api/fees';
         const isLocalhost = false; // Local development check disabled for production
         
         // Create error details for debugging
@@ -1237,7 +1237,7 @@ function printReceipt(feeId, event) {
     console.log('Fetching fee details for ID:', feeId);
     
     // Fetch the fee details
-    fetch(`https://julianbright.onrender.com/api/fees/${feeId}`, {
+    fetch(`https://luckyjuniorschool.onrender.com/api/fees/${feeId}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,

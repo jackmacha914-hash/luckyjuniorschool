@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://julianbright.onrender.com';
+const API_BASE_URL = 'https://luckyjuniorschool.onrender.com';
 
 document.addEventListener('DOMContentLoaded', () => {
   /* ---------------------------

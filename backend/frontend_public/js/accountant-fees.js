@@ -54,7 +54,7 @@ class AccountantFees {
             console.log('Attempting to delete fee with ID:', feeId);
             
             try {
-                const deleteUrl = `https://julianbright.onrender.com/api/fees/${feeId}`;
+                const deleteUrl = `https://luckyjuniorschool.onrender.com/api/fees/${feeId}`;
                 console.log('Sending DELETE request to:', deleteUrl);
                 
                 const response = await fetch(deleteUrl, {
@@ -229,7 +229,7 @@ if (this.feesYearFilter) {
 
             
             // Make API request to get fees with populated student data
-            const apiUrl = `https://julianbright.onrender.com/api/fees?${params.toString()}`;
+            const apiUrl = `https://luckyjuniorschool.onrender.com/api/fees?${params.toString()}`;
             console.log('Fetching fees from:', apiUrl);
             
             let response;
@@ -688,7 +688,7 @@ async recordPayment(feeId) {
         const originalText = paymentBtn?.textContent || 'Record Payment';
         if (paymentBtn) { paymentBtn.disabled = true; paymentBtn.textContent = 'Processing...'; }
 
-        const response = await fetch(`https://julianbright.onrender.com/api/fees/${feeId}/payments`, {
+        const response = await fetch(`https://luckyjuniorschool.onrender.com/api/fees/${feeId}/payments`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify(paymentData)
@@ -858,7 +858,7 @@ async recordPayment(feeId) {
         const originalText = paymentBtn?.textContent || 'Record Payment';
         if (paymentBtn) { paymentBtn.disabled = true; paymentBtn.textContent = 'Processing...'; }
 
-        const response = await fetch(`https://julianbright.onrender.com/api/fees/${feeId}/payments`, {
+        const response = await fetch(`https://luckyjuniorschool.onrender.com/api/fees/${feeId}/payments`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify(paymentData)
@@ -1229,7 +1229,7 @@ printReceipt(data) {
                 return null;
             }
 
-            const response = await fetch(`https://julianbright.onrender.com/api/fees/${feeId}`, {
+            const response = await fetch(`https://luckyjuniorschool.onrender.com/api/fees/${feeId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

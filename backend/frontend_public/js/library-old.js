@@ -35,7 +35,7 @@ async function loadLibraryWithFilters() {
     const filters = getLibraryFilters();
 // API base URL - update this to your actual API URL
 if (typeof API_BASE_URL === 'undefined') {
-    window.API_BASE_URL = 'https://julianbright.onrender.com';
+    window.API_BASE_URL = 'https://luckyjuniorschool.onrender.com';
 }
 
         const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -113,7 +113,7 @@ if (typeof API_BASE_URL === 'undefined') {
                                 const copies = parseInt(formData.get('copies')) || 1;
                                 try {
 
-                                    const res = await fetch(`https://julianbright.onrender.com/api/library/${bookId}`, {
+                                    const res = await fetch(`https://luckyjuniorschool.onrender.com/api/library/${bookId}`, {
                                         method: 'PUT',
                                         headers: {
                                             'Content-Type': 'application/json',
@@ -226,7 +226,7 @@ if (typeof API_BASE_URL === 'undefined') {
                         try {
                             const token = localStorage.getItem('token');
 
-                            const response = await fetch(`https://julianbright.onrender.com/api/library/${bookId}/issue`, {
+                            const response = await fetch(`https://luckyjuniorschool.onrender.com/api/library/${bookId}/issue`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -277,7 +277,7 @@ if (typeof API_BASE_URL === 'undefined') {
                         
                         try {
                             const token = localStorage.getItem('token');
-                            const response = await fetch(`https://julianbright.onrender.com/api/library/${bookId}/issue`, {
+                            const response = await fetch(`https://luckyjuniorschool.onrender.com/api/library/${bookId}/issue`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -347,7 +347,7 @@ if (typeof API_BASE_URL === 'undefined') {
                             if (universalConfirmModal) universalConfirmModal.style.display = 'none';
                             try {
 
-                                const res = await fetch(`https://julianbright.onrender.com/api/library/${bookId}`, {
+                                const res = await fetch(`https://luckyjuniorschool.onrender.com/api/library/${bookId}`, {
                                     method: 'DELETE',
                                     headers: { 'Authorization': `Bearer ${token}` }
                                 });
@@ -456,7 +456,7 @@ if (libraryForm) {
         console.log('Sending book data:', bookData);
         try {
 
-            const res = await fetch('https://julianbright.onrender.com/api/library', {
+            const res = await fetch('https://luckyjuniorschool.onrender.com/api/library', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -532,7 +532,7 @@ if (libraryBulkDelete) {
                 for (const bookId of selectedBookIds) {
                     try {
 
-                        await fetch(`https://julianbright.onrender.com/api/library/${bookId}`, {
+                        await fetch(`https://luckyjuniorschool.onrender.com/api/library/${bookId}`, {
                             method: 'DELETE',
                             headers: { 'Authorization': `Bearer ${token}` }
                         });
@@ -553,7 +553,7 @@ if (libraryBulkExport) {
     libraryBulkExport.onclick = async function() {
         if (selectedBookIds.size === 0) return;
         const token = localStorage.getItem('token')
-        let url = 'https://julianbright.onrender.com/api/library';
+        let url = 'https://luckyjuniorschool.onrender.com/api/library';
         const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
         const books = await res.json();
         const selected = books.filter(b => selectedBookIds.has(b._id));

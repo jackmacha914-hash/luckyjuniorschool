@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('Submitting form to server...');
       
 <<<<<<< HEAD
-      const response = await fetch('https://julianbright.onrender.com/api/homeworks', {
+      const response = await fetch('https://luckyjuniorschool.onrender.com/api/homeworks', {
 =======
       const response = await fetch('https://school-management-system-av07.onrender.com/api/homeworks', {
 >>>>>>> 5ab2b09edcd458a602a095bcc9b9d483718a7b98

@@ -1,5 +1,5 @@
 // API configuration and utility functions
-const API_BASE_URL = 'https://julianbright.onrender.com/api';
+const API_BASE_URL = 'https://luckyjuniorschool.onrender.com/api';
 
 // Helper function to handle API requests
 async function apiRequest(endpoint, options = {}) {
