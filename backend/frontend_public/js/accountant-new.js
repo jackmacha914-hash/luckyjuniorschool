@@ -904,8 +904,8 @@ async function loadFeeRecords() {
                                 <option value="">All Classes</option>
                                 <optgroup label="Pre-Primary">
                                     <option value="Baby Class">Baby Class</option>
-                                    <option value="PP1">PP1 (Pre-Primary 1)</option>
-                                    <option value="PP2">PP2 (Pre-Primary 2)</option>
+                                    <option value="Pre-primary 1 (pp1)">PP1 (Pre-Primary 1)</option>
+                                    <option value="Pre-primary 2 (pp2)">PP2 (Pre-Primary 2)</option>
                                 </optgroup>
                                 <optgroup label="Lower Primary (Grade 1-3)">
                                     <option value="Grade 1">Grade 1</option>
