@@ -14,8 +14,8 @@ const CLASS_GROUPS = [
         label: 'Pre-Primary',
         classes: [
             { value: 'Baby Class', text: 'Baby Class' },
-            { value: 'PP1', text: 'PP1 (Pre-Primary 1)' },
-            { value: 'PP2', text: 'PP2 (Pre-Primary 2)' }
+            { value: 'Pre-primary 1 (pp1)', text: 'PP1 (Pre-Primary 1)' },
+            { value: 'Pre-primary 2 (pp2)', text: 'PP2 (Pre-Primary 2)' }
         ]
     },
     {
