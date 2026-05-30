@@ -63,9 +63,103 @@ async function loadOtherCharges(className = "") {
     }
 }
 
-// ------------------ Filters ------------------
-document.getElementById("mc-filter-class-meals")?.addEventListener("change", e => loadMeals(e.target.value));
-document.getElementById("mc-filter-class-other")?.addEventListener("change", e => loadOtherCharges(e.target.value));
+// ------------------ FILTERS ------------------
+
+// Existing class filters
+document.getElementById("mc-filter-class-meals")
+?.addEventListener("change", applyMealsFilters);
+
+document.getElementById("mc-filter-class-other")
+?.addEventListener("change", applyOtherFilters);
+
+// New meal type filter
+document.getElementById("mc-filter-type-meals")
+?.addEventListener("change", applyMealsFilters);
+
+// New meal date filter
+document.getElementById("mc-filter-date-meals")
+?.addEventListener("change", applyMealsFilters);
+
+// New other charges date filter
+document.getElementById("mc-filter-date-other")
+?.addEventListener("change", applyOtherFilters);
+
+
+// ------------------ APPLY MEALS FILTERS ------------------
+function applyMealsFilters() {
+
+    const classFilter =
+        document.getElementById("mc-filter-class-meals").value.toLowerCase();
+
+    const typeFilter =
+        document.getElementById("mc-filter-type-meals").value.toLowerCase();
+
+    const dateFilter =
+        document.getElementById("mc-filter-date-meals").value;
+
+    const rows =
+        document.querySelectorAll("#mc-meals-table tbody tr");
+
+    rows.forEach(row => {
+
+        const className =
+            row.cells[0].textContent.toLowerCase();
+
+        const mealType =
+            row.cells[2].textContent.toLowerCase();
+
+        const mealDate =
+            row.cells[3].textContent;
+
+        const classMatch =
+            !classFilter || className.includes(classFilter);
+
+        const typeMatch =
+            !typeFilter || mealType.includes(typeFilter);
+
+        const dateMatch =
+            !dateFilter || mealDate === dateFilter;
+
+        row.style.display =
+            classMatch && typeMatch && dateMatch
+                ? ""
+                : "none";
+    });
+}
+
+
+// ------------------ APPLY OTHER FILTERS ------------------
+function applyOtherFilters() {
+
+    const classFilter =
+        document.getElementById("mc-filter-class-other").value.toLowerCase();
+
+    const dateFilter =
+        document.getElementById("mc-filter-date-other").value;
+
+    const rows =
+        document.querySelectorAll("#mc-other-table tbody tr");
+
+    rows.forEach(row => {
+
+        const className =
+            row.cells[0].textContent.toLowerCase();
+
+        const chargeDate =
+            row.cells[3].textContent;
+
+        const classMatch =
+            !classFilter || className.includes(classFilter);
+
+        const dateMatch =
+            !dateFilter || chargeDate === dateFilter;
+
+        row.style.display =
+            classMatch && dateMatch
+                ? ""
+                : "none";
+    });
+}
 
 // ------------------ Search ------------------
 function setupSearch(tableId, inputId) {
