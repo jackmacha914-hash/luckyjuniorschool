@@ -18,7 +18,7 @@ const otherChargeSchema = new mongoose.Schema({
         required: true
     },
     term: {
-        type: string,
+        type: String,
         required: true
     },
     amount: {
