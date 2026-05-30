@@ -13,7 +13,7 @@ document.addEventListener("click", function(e) {
     if (e.target.closest("#mc-close-other") || e.target.id === "mc-other-modal") otherModal?.classList.remove("mc-show");
 });
 
-// ------------------ FETCH & LOAD MEALS ------------------
+// ------------------ FETCH & LOAD MEALS (BACKEND FILTERED) ------------------
 async function loadMeals() {
 
     const className =
@@ -25,15 +25,11 @@ async function loadMeals() {
     const date =
         document.getElementById("mc-filter-date-meals")?.value || "";
 
-    const search =
-        document.getElementById("mc-search-meals")?.value || "";
-
     const params = new URLSearchParams();
 
     if (className) params.append("className", className);
     if (mealType) params.append("mealType", mealType);
     if (date) params.append("date", date);
-    if (search) params.append("search", search);
 
     const url = `/api/meals?${params.toString()}`;
 
@@ -44,12 +40,24 @@ async function loadMeals() {
         const tbody = document.querySelector("#mc-meals-table tbody");
         tbody.innerHTML = "";
 
+        if (!data.length) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align:center; padding:15px;">
+                        No records found
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
         data.forEach(meal => {
 
             const row = document.createElement("tr");
 
-            const mealDate =
-                meal.date ? meal.date.split("T")[0] : "";
+            const mealDate = meal.date
+                ? new Date(meal.date).toISOString().split("T")[0]
+                : "";
 
             row.innerHTML = `
                 <td>${meal.className || ""}</td>
@@ -68,7 +76,6 @@ async function loadMeals() {
         console.error("Error loading meals:", err);
     }
 }
-
 // ------------------ FETCH & LOAD OTHER CHARGES ------------------
 async function loadOtherCharges() {
 
@@ -127,13 +134,13 @@ async function loadOtherCharges() {
 
 // Meals filters
 document.getElementById("mc-filter-class-meals")
-?.addEventListener("change", applyMealsFilters);
+?.addEventListener("change", loadMeals);
 
 document.getElementById("mc-filter-type-meals")
-?.addEventListener("change", applyMealsFilters);
+?.addEventListener("change", loadMeals);
 
 document.getElementById("mc-filter-date-meals")
-?.addEventListener("change", applyMealsFilters);
+?.addEventListener("change", loadMeals);
 
 document.getElementById("mc-search-meals")
 ?.addEventListener("input", applyMealsFilters);
