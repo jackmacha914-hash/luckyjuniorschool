@@ -1759,6 +1759,60 @@ margin-right:5px;
     margin: 10px 0;
 }
 
+/* ---------------- PAGINATION ---------------- */
+
+.mc-pagination{
+    display:flex;
+    gap:8px;
+    margin-top:15px;
+    flex-wrap:wrap;
+}
+
+.mc-page-btn{
+    border:none;
+    padding:8px 14px;
+    border-radius:8px;
+    background:#e5e7eb;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.mc-page-btn:hover{
+    background:#d1d5db;
+}
+
+.mc-page-btn.active{
+    background:#2563eb;
+    color:white;
+}
+
+/* ---------------- TABLE ---------------- */
+
+.mc-records-table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.mc-records-table thead{
+    background:#1e3a8a;
+    color:white;
+    position:sticky;
+    top:0;
+}
+
+.mc-records-table th,
+.mc-records-table td{
+    padding:12px;
+    border-bottom:1px solid #e5e7eb;
+    text-align:left;
+}
+
+.mc-records-table tbody tr:hover{
+    background:#f9fafb;
+}
 /* ---------- Responsive ---------- */
 @media screen and (max-width: 600px) {
     .mc-modal-content {
