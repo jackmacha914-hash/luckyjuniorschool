@@ -132,10 +132,24 @@ function applyMealsFilters() {
 function applyOtherFilters() {
 
     const classFilter =
-        document.getElementById("mc-filter-class-other").value.toLowerCase();
+        document.getElementById("mc-filter-class-other")
+        ?.value.toLowerCase() || "";
+
+    const typeFilter =
+        document.getElementById("mc-filter-type-other")
+        ?.value.toLowerCase() || "";
+
+    const termFilter =
+        document.getElementById("mc-filter-term-other")
+        ?.value.toLowerCase() || "";
 
     const dateFilter =
-        document.getElementById("mc-filter-date-other").value;
+        document.getElementById("mc-filter-date-other")
+        ?.value || "";
+
+    const searchFilter =
+        document.getElementById("mc-search-other")
+        ?.value.toLowerCase() || "";
 
     const rows =
         document.querySelectorAll("#mc-other-table tbody tr");
@@ -145,17 +159,40 @@ function applyOtherFilters() {
         const className =
             row.cells[0].textContent.toLowerCase();
 
+        const studentName =
+            row.cells[1].textContent.toLowerCase();
+
+        const chargeType =
+            row.cells[2].textContent.toLowerCase();
+
         const chargeDate =
             row.cells[3].textContent;
+
+        // Make sure your table has a Term column
+        const term =
+            row.cells[4]?.textContent.toLowerCase() || "";
 
         const classMatch =
             !classFilter || className.includes(classFilter);
 
+        const typeMatch =
+            !typeFilter || chargeType.includes(typeFilter);
+
+        const termMatch =
+            !termFilter || term.includes(termFilter);
+
         const dateMatch =
             !dateFilter || chargeDate === dateFilter;
 
+        const searchMatch =
+            !searchFilter || studentName.includes(searchFilter);
+
         row.style.display =
-            classMatch && dateMatch
+            classMatch &&
+            typeMatch &&
+            termMatch &&
+            dateMatch &&
+            searchMatch
                 ? ""
                 : "none";
     });
