@@ -1,4 +1,3 @@
-// routes/meals.js
 const express = require('express');
 const router = express.Router();
 const Meal = require('../models/Meal');
@@ -8,7 +7,7 @@ const Meal = require('../models/Meal');
 router.get('/', async (req, res) => {
     try {
 
-        const { className, mealType, date } = req.query;
+        const { className, mealType, date, term } = req.query;
 
         let filter = {};
 
@@ -17,12 +16,17 @@ router.get('/', async (req, res) => {
             filter.className = className;
         }
 
-        // Meal type filter (Breakfast, Lunch, Snack)
+        // Meal type filter
         if (mealType) {
             filter.mealType = mealType;
         }
 
-        // Date filter (IMPORTANT: match only YYYY-MM-DD)
+        // Term filter (NEW)
+        if (term) {
+            filter.term = term;
+        }
+
+        // Date filter (safe same-day range)
         if (date) {
             const start = new Date(date);
             const end = new Date(date);
@@ -51,6 +55,7 @@ router.post('/', async (req, res) => {
     try {
 
         const meal = new Meal(req.body);
+
         await meal.save();
 
         res.status(201).json(meal);
