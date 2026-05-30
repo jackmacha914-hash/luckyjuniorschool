@@ -1,17 +1,44 @@
 // routes/meals.js
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const Meal = require("../models/Meal"); // MongoDB model
+const Meal = require('../models/Meal');
 
-// GET all meals or by class
-router.get("/", async (req, res) => {
-    const { className } = req.query; // optional
-    const query = className ? { className } : {};
+
+// GET all meals
+router.get('/', async (req, res) => {
     try {
-        const meals = await Meal.find(query).sort({ date: -1 });
+        const { className } = req.query;
+
+        let filter = {};
+
+        if (className) {
+            filter.className = className;
+        }
+
+        const meals = await Meal.find(filter).sort({ createdAt: -1 });
+
         res.json(meals);
+
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+
+// CREATE meal
+router.post('/', async (req, res) => {
+    try {
+
+        const meal = new Meal(req.body);
+
+        await meal.save();
+
+        res.status(201).json(meal);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
     }
 });
 
