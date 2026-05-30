@@ -111,37 +111,48 @@ async function loadOtherCharges() {
 }
 // ------------------ FILTERS ------------------
 
-// Existing class filters
+// Meals filters
 document.getElementById("mc-filter-class-meals")
 ?.addEventListener("change", applyMealsFilters);
 
-document.getElementById("mc-filter-class-other")
-?.addEventListener("change", applyOtherFilters);
-
-// New meal type filter
 document.getElementById("mc-filter-type-meals")
 ?.addEventListener("change", applyMealsFilters);
 
-// New meal date filter
 document.getElementById("mc-filter-date-meals")
 ?.addEventListener("change", applyMealsFilters);
 
-// New other charges date filter
+document.getElementById("mc-search-meals")
+?.addEventListener("input", applyMealsFilters);
+
+
+// Other charges filters
+document.getElementById("mc-filter-class-other")
+?.addEventListener("change", applyOtherFilters);
+
+document.getElementById("mc-filter-type-other")
+?.addEventListener("change", applyOtherFilters);
+
 document.getElementById("mc-filter-date-other")
 ?.addEventListener("change", applyOtherFilters);
+
+document.getElementById("mc-search-other")
+?.addEventListener("input", applyOtherFilters);
 
 
 // ------------------ APPLY MEALS FILTERS ------------------
 function applyMealsFilters() {
 
     const classFilter =
-        document.getElementById("mc-filter-class-meals").value.toLowerCase();
+        document.getElementById("mc-filter-class-meals")?.value.toLowerCase() || "";
 
     const typeFilter =
-        document.getElementById("mc-filter-type-meals").value.toLowerCase();
+        document.getElementById("mc-filter-type-meals")?.value.toLowerCase() || "";
 
     const dateFilter =
-        document.getElementById("mc-filter-date-meals").value;
+        document.getElementById("mc-filter-date-meals")?.value || "";
+
+    const searchFilter =
+        document.getElementById("mc-search-meals")?.value.toLowerCase() || "";
 
     const rows =
         document.querySelectorAll("#mc-meals-table tbody tr");
@@ -149,13 +160,16 @@ function applyMealsFilters() {
     rows.forEach(row => {
 
         const className =
-            row.cells[0].textContent.toLowerCase();
+            row.cells[0]?.textContent.toLowerCase() || "";
+
+        const studentName =
+            row.cells[1]?.textContent.toLowerCase() || "";
 
         const mealType =
-            row.cells[2].textContent.toLowerCase();
+            row.cells[2]?.textContent.toLowerCase() || "";
 
         const mealDate =
-            row.cells[3].textContent;
+            row.cells[3]?.textContent || "";
 
         const classMatch =
             !classFilter || className.includes(classFilter);
@@ -166,8 +180,11 @@ function applyMealsFilters() {
         const dateMatch =
             !dateFilter || mealDate === dateFilter;
 
+        const searchMatch =
+            !searchFilter || studentName.includes(searchFilter);
+
         row.style.display =
-            classMatch && typeMatch && dateMatch
+            classMatch && typeMatch && dateMatch && searchMatch
                 ? ""
                 : "none";
     });
@@ -178,24 +195,16 @@ function applyMealsFilters() {
 function applyOtherFilters() {
 
     const classFilter =
-        document.getElementById("mc-filter-class-other")
-        ?.value.toLowerCase() || "";
+        document.getElementById("mc-filter-class-other")?.value.toLowerCase() || "";
 
     const typeFilter =
-        document.getElementById("mc-filter-type-other")
-        ?.value.toLowerCase() || "";
-
-    const termFilter =
-        document.getElementById("mc-filter-term-other")
-        ?.value.toLowerCase() || "";
+        document.getElementById("mc-filter-type-other")?.value.toLowerCase() || "";
 
     const dateFilter =
-        document.getElementById("mc-filter-date-other")
-        ?.value || "";
+        document.getElementById("mc-filter-date-other")?.value || "";
 
     const searchFilter =
-        document.getElementById("mc-search-other")
-        ?.value.toLowerCase() || "";
+        document.getElementById("mc-search-other")?.value.toLowerCase() || "";
 
     const rows =
         document.querySelectorAll("#mc-other-table tbody tr");
@@ -203,29 +212,22 @@ function applyOtherFilters() {
     rows.forEach(row => {
 
         const className =
-            row.cells[0].textContent.toLowerCase();
+            row.cells[0]?.textContent.toLowerCase() || "";
 
         const studentName =
-            row.cells[1].textContent.toLowerCase();
+            row.cells[1]?.textContent.toLowerCase() || "";
 
         const chargeType =
-            row.cells[2].textContent.toLowerCase();
+            row.cells[2]?.textContent.toLowerCase() || "";
 
         const chargeDate =
-            row.cells[3].textContent;
-
-        // Make sure your table has a Term column
-        const term =
-            row.cells[4]?.textContent.toLowerCase() || "";
+            row.cells[3]?.textContent || "";
 
         const classMatch =
             !classFilter || className.includes(classFilter);
 
         const typeMatch =
             !typeFilter || chargeType.includes(typeFilter);
-
-        const termMatch =
-            !termFilter || term.includes(termFilter);
 
         const dateMatch =
             !dateFilter || chargeDate === dateFilter;
@@ -234,16 +236,11 @@ function applyOtherFilters() {
             !searchFilter || studentName.includes(searchFilter);
 
         row.style.display =
-            classMatch &&
-            typeMatch &&
-            termMatch &&
-            dateMatch &&
-            searchMatch
+            classMatch && typeMatch && dateMatch && searchMatch
                 ? ""
                 : "none";
     });
 }
-
 // ------------------ Search ------------------
 function setupSearch(tableId, inputId) {
     const table = document.getElementById(tableId);
