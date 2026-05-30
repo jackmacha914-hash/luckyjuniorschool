@@ -2295,41 +2295,93 @@ window.fetch = async (input, init = {}) => {
     <div class="sub-section">
         <h3>Meals</h3>
         <button id="mc-add-meal-btn" class="mc-btn">Add Meal Payment</button>
-        <!-- Filters -->
-    <div class="mc-filters" style="margin:10px 0;">
-        <label for="mc-filter-class-meals">Filter by Class:</label>
+       <!-- Filters -->
+<div class="mc-filters" style="
+    margin:15px 0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:15px;
+    align-items:end;
+">
+
+    <!-- Class Filter -->
+    <div>
+        <label for="mc-filter-class-meals">Class</label>
         <select id="mc-filter-class-meals" class="mc-input">
             <option value="">All Classes</option>
-                            <optgroup label="Pre-Primary">
-                                <option value="Baby Class">Baby Class</option>
-                                <option value="Pre-primary 1 (pp1)">PP1</option>
-                                <option value="Pre-primary 2 (pp2)">PP2</option>
-                            </optgroup>
-                            <optgroup label="Lower Primary">
-                                <option value="Grade 1">Grade 1</option>
-                                <option value="Grade 2">Grade 2</option>
-                                <option value="Grade 3">Grade 3</option>
-                            </optgroup>
-                            <optgroup label="Upper Primary">
-                                <option value="Grade 4">Grade 4</option>
-                                <option value="Grade 5">Grade 5</option>
-                                <option value="Grade 6">Grade 6</option>
-                            </optgroup>
-                            <optgroup label="Junior Secondary">
-                                <option value="Grade 7">Grade 7</option>
-                                <option value="Grade 8">Grade 8</option>
-                                <option value="Grade 9">Grade 9</option>
-                            </optgroup>
-                            <optgroup label="Senior School">
-                                <option value="Grade 10">Grade 10</option>
-                                <option value="Grade 11">Grade 11</option>
-                                <option value="Grade 12">Grade 12</option>
-                            </optgroup>
-        </select>
 
-        <label for="mc-search-meals" style="margin-left:20px;">Search Student:</label>
-        <input type="text" id="mc-search-meals" class="mc-input" placeholder="Enter student name">
+            <optgroup label="Pre-Primary">
+                <option value="Baby Class">Baby Class</option>
+                <option value="Pre-primary 1 (pp1)">PP1</option>
+                <option value="Pre-primary 2 (pp2)">PP2</option>
+            </optgroup>
+
+            <optgroup label="Lower Primary">
+                <option value="Grade 1">Grade 1</option>
+                <option value="Grade 2">Grade 2</option>
+                <option value="Grade 3">Grade 3</option>
+            </optgroup>
+
+            <optgroup label="Upper Primary">
+                <option value="Grade 4">Grade 4</option>
+                <option value="Grade 5">Grade 5</option>
+                <option value="Grade 6">Grade 6</option>
+            </optgroup>
+
+            <optgroup label="Junior Secondary">
+                <option value="Grade 7">Grade 7</option>
+                <option value="Grade 8">Grade 8</option>
+                <option value="Grade 9">Grade 9</option>
+            </optgroup>
+
+            <optgroup label="Senior School">
+                <option value="Grade 10">Grade 10</option>
+                <option value="Grade 11">Grade 11</option>
+                <option value="Grade 12">Grade 12</option>
+            </optgroup>
+        </select>
     </div>
+
+    <!-- Meal Type Filter -->
+    <div>
+        <label for="mc-filter-type-meals">Meal Type</label>
+        <select id="mc-filter-type-meals" class="mc-input">
+            <option value="">All Meals</option>
+            <option value="Breakfast">Breakfast</option>
+            <option value="Lunch">Lunch</option>
+            <option value="Snack">Snack</option>
+        </select>
+    </div>
+
+    <!-- Date Filter -->
+    <div>
+        <label for="mc-filter-date-meals">Date</label>
+        <input type="date" id="mc-filter-date-meals" class="mc-input">
+    </div>
+
+    <!-- Student Search -->
+    <div style="flex:1; min-width:220px;">
+        <label for="mc-search-meals">Search Student</label>
+        <input
+            type="text"
+            id="mc-search-meals"
+            class="mc-input"
+            placeholder="Enter student name"
+        >
+    </div>
+
+    <!-- Reset Button -->
+    <div>
+        <button
+            id="mc-reset-meal-filters"
+            class="mc-btn"
+            type="button"
+        >
+            Reset Filters
+        </button>
+    </div>
+
+</div>
 
     <!-- Export / Print Buttons -->
     <div class="mc-actions" style="margin-bottom:10px;">
