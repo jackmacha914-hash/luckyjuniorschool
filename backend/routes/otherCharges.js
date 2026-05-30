@@ -4,11 +4,11 @@ const router = express.Router();
 const OtherCharge = require('../models/OtherCharge');
 
 
-// GET all charges (FILTERED)
+// ------------------ GET ALL CHARGES (FILTERED) ------------------
 router.get('/', async (req, res) => {
     try {
 
-        const { className, chargeType, date, search } = req.query;
+        const { className, chargeType, date, search, term } = req.query;
 
         let filter = {};
 
@@ -17,9 +17,14 @@ router.get('/', async (req, res) => {
             filter.className = className;
         }
 
-        // Charge type filter (Diary, Book, Trip, etc.)
+        // Charge type filter
         if (chargeType) {
             filter.chargeType = chargeType;
+        }
+
+        // Term filter (NEW)
+        if (term) {
+            filter.term = term;
         }
 
         // Date filter (safe same-day range)
@@ -55,7 +60,8 @@ router.get('/', async (req, res) => {
     }
 });
 
-// CREATE charge
+
+// ------------------ CREATE CHARGE ------------------
 router.post('/', async (req, res) => {
     try {
 
