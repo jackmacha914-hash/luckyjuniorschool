@@ -2291,6 +2291,32 @@ window.fetch = async (input, init = {}) => {
 <section id="meals-collections-section" class="tab-section" style="display:none;">
     <h2>Meals & Collections</h2>
 
+    <!-- ================= SUMMARY CARDS ================= -->
+<div class="mc-summary-grid">
+
+    <div class="mc-summary-card meals-card">
+        <h3>Today's Meals</h3>
+        <p id="mc-today-meals">KES 0</p>
+    </div>
+
+    <div class="mc-summary-card charges-card">
+        <h3>Today's Charges</h3>
+        <p id="mc-today-charges">KES 0</p>
+    </div>
+
+    <div class="mc-summary-card term-card">
+        <h3>This Term Total</h3>
+        <p id="mc-term-total">KES 0</p>
+    </div>
+
+    <div class="mc-summary-card grand-card">
+        <h3>Grand Total</h3>
+        <p id="mc-grand-total">KES 0</p>
+    </div>
+
+</div>
+
+
     <!-- Meals Section -->
     <div class="sub-section">
         <h3>Meals</h3>
