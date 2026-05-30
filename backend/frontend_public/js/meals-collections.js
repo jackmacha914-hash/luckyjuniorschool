@@ -637,4 +637,6 @@ document.querySelector("#mc-other-form select[name='className']")?.addEventListe
 
 // ------------------ Initial Table Load ------------------
 loadMeals();
+updateFinanceSummary();
 loadOtherCharges();
+updateFinanceSummary();
