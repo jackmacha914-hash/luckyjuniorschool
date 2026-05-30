@@ -13,56 +13,102 @@ document.addEventListener("click", function(e) {
     if (e.target.closest("#mc-close-other") || e.target.id === "mc-other-modal") otherModal?.classList.remove("mc-show");
 });
 
-// ------------------ Fetch and Load Tables ------------------
-async function loadMeals(className = "") {
-    const url = className ? `/api/meals?className=${className}` : "/api/meals";
+// ------------------ FETCH & LOAD MEALS ------------------
+async function loadMeals() {
+
+    const className =
+        document.getElementById("mc-filter-class-meals")?.value || "";
+
+    const mealType =
+        document.getElementById("mc-filter-meal-type")?.value || "";
+
+    const date =
+        document.getElementById("mc-filter-date-meals")?.value || "";
+
+    const params = new URLSearchParams();
+
+    if (className) params.append("className", className);
+    if (mealType) params.append("mealType", mealType);
+    if (date) params.append("date", date);
+
+    const url = `/api/meals?${params.toString()}`;
+
     try {
         const res = await fetch(url);
         const data = await res.json();
+
         const tbody = document.querySelector("#mc-meals-table tbody");
         tbody.innerHTML = "";
+
         data.forEach(meal => {
+
             const row = document.createElement("tr");
+
+            const mealDate =
+                meal.date ? meal.date.split("T")[0] : "";
+
             row.innerHTML = `
-                <td>${meal.className}</td>
-                <td>${meal.studentName}</td>
-                <td>${meal.mealType}</td>
-                <td>${meal.date.split("T")[0]}</td>
+                <td>${meal.className || ""}</td>
+                <td>${meal.studentName || ""}</td>
+                <td>${meal.mealType || ""}</td>
+                <td>${mealDate}</td>
                 <td>${meal.frequency || ""}</td>
-                <td>${meal.amount}</td>
-                <td>${meal.receiptNumber}</td>
+                <td>${meal.amount || 0}</td>
+                <td>${meal.receiptNumber || ""}</td>
             `;
+
             tbody.appendChild(row);
         });
+
     } catch (err) {
         console.error("Error loading meals:", err);
     }
 }
 
-async function loadOtherCharges(className = "") {
-    const url = className ? `/api/other-charges?className=${className}` : "/api/other-charges";
+
+// ------------------ FETCH & LOAD OTHER CHARGES ------------------
+async function loadOtherCharges() {
+
+    const className =
+        document.getElementById("mc-filter-class-other")?.value || "";
+
+    const params = new URLSearchParams();
+
+    if (className)
+        params.append("className", className);
+
+    const url = `/api/other-charges?${params.toString()}`;
+
     try {
         const res = await fetch(url);
         const data = await res.json();
+
         const tbody = document.querySelector("#mc-other-table tbody");
         tbody.innerHTML = "";
+
         data.forEach(charge => {
+
             const row = document.createElement("tr");
+
+            const chargeDate =
+                charge.date ? charge.date.split("T")[0] : "";
+
             row.innerHTML = `
-                <td>${charge.className}</td>
-                <td>${charge.studentName}</td>
-                <td>${charge.chargeType}</td>
-                <td>${charge.date.split("T")[0]}</td>
-                <td>${charge.amount}</td>
-                <td>${charge.receiptNumber}</td>
+                <td>${charge.className || ""}</td>
+                <td>${charge.studentName || ""}</td>
+                <td>${charge.chargeType || ""}</td>
+                <td>${chargeDate}</td>
+                <td>${charge.amount || 0}</td>
+                <td>${charge.receiptNumber || ""}</td>
             `;
+
             tbody.appendChild(row);
         });
+
     } catch (err) {
         console.error("Error loading charges:", err);
     }
 }
-
 // ------------------ FILTERS ------------------
 
 // Existing class filters
