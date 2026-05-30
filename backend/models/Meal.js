@@ -14,7 +14,7 @@ const mealSchema = new mongoose.Schema({
         required: true
     },
     term: {
-        type: string,
+        type: String,
         required: true
     },
     date: {
