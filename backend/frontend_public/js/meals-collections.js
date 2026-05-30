@@ -241,6 +241,96 @@ function setupSorting(tableId) {
 setupSorting("mc-meals-table");
 setupSorting("mc-other-table");
 
+// ------------------ TABLE PAGINATION ------------------
+
+function setupPagination(tableId, rowsPerPage = 10) {
+
+    const table = document.getElementById(tableId);
+
+    if (!table) return;
+
+    const tbody = table.querySelector("tbody");
+
+    const paginationId = tableId + "-pagination";
+
+    let pagination =
+        document.getElementById(paginationId);
+
+    // create pagination container if missing
+    if (!pagination) {
+        pagination = document.createElement("div");
+        pagination.id = paginationId;
+        pagination.className = "mc-pagination";
+        table.parentNode.appendChild(pagination);
+    }
+
+    let currentPage = 1;
+
+    function renderTable() {
+
+        const rows =
+            Array.from(tbody.querySelectorAll("tr"))
+                .filter(row => row.style.display !== "none");
+
+        const totalPages =
+            Math.ceil(rows.length / rowsPerPage);
+
+        rows.forEach((row, index) => {
+
+            const start =
+                (currentPage - 1) * rowsPerPage;
+
+            const end =
+                start + rowsPerPage;
+
+            row.style.display =
+                index >= start && index < end
+                    ? ""
+                    : "none";
+        });
+
+        renderPaginationButtons(totalPages);
+    }
+
+    function renderPaginationButtons(totalPages) {
+
+        pagination.innerHTML = "";
+
+        if (totalPages <= 1) return;
+
+        for (let i = 1; i <= totalPages; i++) {
+
+            const btn =
+                document.createElement("button");
+
+            btn.textContent = i;
+
+            btn.className =
+                i === currentPage
+                    ? "mc-page-btn active"
+                    : "mc-page-btn";
+
+            btn.addEventListener("click", () => {
+                currentPage = i;
+                renderTable();
+            });
+
+            pagination.appendChild(btn);
+        }
+    }
+
+    renderTable();
+
+    return renderTable;
+}
+
+// setup pagination
+const refreshMealsPagination =
+    setupPagination("mc-meals-table", 10);
+
+const refreshOtherPagination =
+    setupPagination("mc-other-table", 10);
+
 // ------------------ Export / Print ------------------
 function exportTableToCSV(tableId, filename){
     const table = document.getElementById(tableId);
