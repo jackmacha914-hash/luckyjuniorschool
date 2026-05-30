@@ -13,6 +13,10 @@ const mealSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    term: {
+        type: string,
+        required: true
+    },
     date: {
         type: Date,
         required: true
