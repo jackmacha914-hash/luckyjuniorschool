@@ -17,6 +17,10 @@ const otherChargeSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
+    term: {
+        type: string,
+        required: true
+    },
     amount: {
         type: Number,
         required: true
