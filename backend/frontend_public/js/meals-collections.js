@@ -20,16 +20,20 @@ async function loadMeals() {
         document.getElementById("mc-filter-class-meals")?.value || "";
 
     const mealType =
-        document.getElementById("mc-filter-meal-type")?.value || "";
+        document.getElementById("mc-filter-type-meals")?.value || "";
 
     const date =
         document.getElementById("mc-filter-date-meals")?.value || "";
+
+    const search =
+        document.getElementById("mc-search-meals")?.value || "";
 
     const params = new URLSearchParams();
 
     if (className) params.append("className", className);
     if (mealType) params.append("mealType", mealType);
     if (date) params.append("date", date);
+    if (search) params.append("search", search);
 
     const url = `/api/meals?${params.toString()}`;
 
@@ -65,17 +69,27 @@ async function loadMeals() {
     }
 }
 
-
 // ------------------ FETCH & LOAD OTHER CHARGES ------------------
 async function loadOtherCharges() {
 
     const className =
         document.getElementById("mc-filter-class-other")?.value || "";
 
+    const chargeType =
+        document.getElementById("mc-filter-type-other")?.value || "";
+
+    const date =
+        document.getElementById("mc-filter-date-other")?.value || "";
+
+    const search =
+        document.getElementById("mc-search-other")?.value || "";
+
     const params = new URLSearchParams();
 
-    if (className)
-        params.append("className", className);
+    if (className) params.append("className", className);
+    if (chargeType) params.append("chargeType", chargeType);
+    if (date) params.append("date", date);
+    if (search) params.append("search", search);
 
     const url = `/api/other-charges?${params.toString()}`;
 
