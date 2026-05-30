@@ -4,15 +4,35 @@ const router = express.Router();
 const Meal = require('../models/Meal');
 
 
-// GET all meals
+// ------------------ GET ALL / FILTER MEALS ------------------
 router.get('/', async (req, res) => {
     try {
-        const { className } = req.query;
+
+        const { className, mealType, date } = req.query;
 
         let filter = {};
 
+        // Class filter
         if (className) {
             filter.className = className;
+        }
+
+        // Meal type filter (Breakfast, Lunch, Snack)
+        if (mealType) {
+            filter.mealType = mealType;
+        }
+
+        // Date filter (IMPORTANT: match only YYYY-MM-DD)
+        if (date) {
+            const start = new Date(date);
+            const end = new Date(date);
+
+            end.setDate(end.getDate() + 1);
+
+            filter.date = {
+                $gte: start,
+                $lt: end
+            };
         }
 
         const meals = await Meal.find(filter).sort({ createdAt: -1 });
@@ -20,24 +40,23 @@ router.get('/', async (req, res) => {
         res.json(meals);
 
     } catch (err) {
-        console.error(err);
+        console.error("Meals GET error:", err);
         res.status(500).json({ message: 'Server Error' });
     }
 });
 
 
-// CREATE meal
+// ------------------ CREATE MEAL ------------------
 router.post('/', async (req, res) => {
     try {
 
         const meal = new Meal(req.body);
-
         await meal.save();
 
         res.status(201).json(meal);
 
     } catch (err) {
-        console.error(err);
+        console.error("Meals POST error:", err);
         res.status(500).json({ message: 'Server Error' });
     }
 });
