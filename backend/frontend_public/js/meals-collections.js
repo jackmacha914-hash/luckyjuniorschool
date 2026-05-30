@@ -499,6 +499,108 @@ document.querySelector("#mc-meal-form select[name='className']")?.addEventListen
     }
 });
 
+// ================= UPDATE SUMMARY CARDS =================
+async function updateFinanceSummary() {
+
+    try {
+
+        // Fetch meals
+        const mealsRes = await fetch('/api/meals');
+        const meals = await mealsRes.json();
+
+        // Fetch other charges
+        const chargesRes = await fetch('/api/other-charges');
+        const charges = await chargesRes.json();
+
+        // Today's date
+        const today = new Date().toISOString().split('T')[0];
+
+        // Current year
+        const currentYear = new Date().getFullYear();
+
+        // Detect current term automatically
+        const month = new Date().getMonth() + 1;
+
+        let currentTerm = 'Term 1';
+
+        if (month >= 5 && month <= 8) {
+            currentTerm = 'Term 2';
+        }
+
+        if (month >= 9) {
+            currentTerm = 'Term 3';
+        }
+
+        // ================= MEALS TOTAL TODAY =================
+        const todayMeals = meals
+            .filter(meal => {
+                if (!meal.date) return false;
+
+                return meal.date.split('T')[0] === today;
+            })
+            .reduce((sum, meal) => sum + Number(meal.amount || 0), 0);
+
+
+        // ================= CHARGES TOTAL TODAY =================
+        const todayCharges = charges
+            .filter(charge => {
+                if (!charge.date) return false;
+
+                return charge.date.split('T')[0] === today;
+            })
+            .reduce((sum, charge) => sum + Number(charge.amount || 0), 0);
+
+
+        // ================= TERM TOTAL =================
+        const termMeals = meals
+            .filter(meal => {
+                return meal.term === currentTerm &&
+                       Number(meal.year) === currentYear;
+            })
+            .reduce((sum, meal) => sum + Number(meal.amount || 0), 0);
+
+
+        const termCharges = charges
+            .filter(charge => {
+                return charge.term === currentTerm &&
+                       Number(charge.year) === currentYear;
+            })
+            .reduce((sum, charge) => sum + Number(charge.amount || 0), 0);
+
+
+        const termTotal = termMeals + termCharges;
+
+
+        // ================= GRAND TOTAL =================
+        const grandMeals = meals
+            .reduce((sum, meal) => sum + Number(meal.amount || 0), 0);
+
+        const grandCharges = charges
+            .reduce((sum, charge) => sum + Number(charge.amount || 0), 0);
+
+        const grandTotal = grandMeals + grandCharges;
+
+
+        // ================= UPDATE UI =================
+        document.getElementById('mc-today-meals').textContent =
+            `KES ${todayMeals.toLocaleString()}`;
+
+        document.getElementById('mc-today-charges').textContent =
+            `KES ${todayCharges.toLocaleString()}`;
+
+        document.getElementById('mc-term-total').textContent =
+            `KES ${termTotal.toLocaleString()}`;
+
+        document.getElementById('mc-grand-total').textContent =
+            `KES ${grandTotal.toLocaleString()}`;
+
+    } catch (err) {
+
+        console.error('Finance summary error:', err);
+    }
+}
+
+
 // Other Charges Modal: Populate students based on selected class
 document.querySelector("#mc-other-form select[name='className']")?.addEventListener("change", async function() {
     const className = this.value;
