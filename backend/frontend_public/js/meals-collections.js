@@ -63,6 +63,7 @@ async function loadMeals() {
                 <td>${meal.className || ""}</td>
                 <td>${meal.studentName || ""}</td>
                 <td>${meal.mealType || ""}</td>
+                <td>${meal.term || ""}</td>
                 <td>${mealDate}</td>
                 <td>${meal.frequency || ""}</td>
                 <td>${meal.amount || 0}</td>
@@ -118,6 +119,7 @@ async function loadOtherCharges() {
                 <td>${charge.className || ""}</td>
                 <td>${charge.studentName || ""}</td>
                 <td>${charge.chargeType || ""}</td>
+                <td>${charge.term || ""}</td>
                 <td>${chargeDate}</td>
                 <td>${charge.amount || 0}</td>
                 <td>${charge.receiptNumber || ""}</td>
