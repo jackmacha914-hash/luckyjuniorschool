@@ -1,12 +1,17 @@
+// ===============================
 // Initialize Accountant Page
+// ===============================
 function initializeAccountantPage() {
     console.log('Initializing accountant page');
 
-    loadClasses();
-    initializeFeeForm();
-    loadFeeRecords();
+    // Core initializers (from other modules)
+    if (typeof loadClasses === 'function') loadClasses();
+    if (typeof initializeFeeForm === 'function') initializeFeeForm();
+    if (typeof loadFeeRecords === 'function') loadFeeRecords();
 
-    // Debug Button
+    // ===============================
+    // Debug Button (safe)
+    // ===============================
     const debugButton = document.createElement('button');
 
     debugButton.textContent = 'Debug: Load Test Students';
@@ -16,7 +21,7 @@ function initializeAccountantPage() {
     debugButton.onclick = () => {
         const studentSelect = document.getElementById('fee-student-id');
 
-        if (studentSelect) {
+        if (studentSelect && typeof loadMockStudents === 'function') {
             loadMockStudents(studentSelect);
         }
     };
@@ -28,7 +33,9 @@ function initializeAccountantPage() {
     }
 }
 
-// DOM Load
+// ===============================
+// DOM Ready
+// ===============================
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM fully loaded - Accountant Page');
 
@@ -40,24 +47,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-        console.log('Initializing accountant page...');
-
         initializeAccountantPage();
-
         console.log('Accountant script loaded and initialized');
-
     } catch (error) {
         console.error('Error initializing accountant page:', error);
     }
 });
 
-// If DOM already loaded
+// ===============================
+// Fallback if script loads late
+// ===============================
 if (
     document.readyState === 'complete' ||
     document.readyState === 'interactive'
 ) {
-    console.log('DOM already loaded, initializing...');
-
     const accountantSection = document.getElementById('accountant-section');
 
     if (accountantSection) {
