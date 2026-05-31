@@ -1,9 +1,9 @@
-// =============================== 
+// ===============================
 // CLASS MANAGEMENT (BULK VERSION)
 // ===============================
 
 // -------------------------------
-// Load Classes
+// Load Classes (FROM BACKEND)
 // -------------------------------
 function loadClasses() {
 
@@ -46,6 +46,7 @@ function loadClasses() {
                 uniqueClasses.forEach(cls => {
 
                     const option = document.createElement('option');
+
                     option.value = cls;
                     option.textContent = cls;
 
@@ -78,162 +79,89 @@ function loadClasses() {
             '<option value="">Error loading classes</option>';
     }
 }
+
 // -------------------------------
-// Handle Class Change
+// Handle Class Change (FIXED)
 // -------------------------------
 async function handleBulkClassChange(event) {
 
-    const selectedClass =
-        event.target.value;
+    const selectedClass = event.target.value;
 
-    // RESET
     window.selectedClassStudents = [];
     window.selectedClassName = '';
 
-    if (!selectedClass) {
-        return;
-    }
+    if (!selectedClass) return;
 
     try {
 
-        console.log(
-            'Loading students for:',
-            selectedClass
+        console.log('Loading students for:', selectedClass);
+
+        window.selectedClassName = selectedClass;
+
+        // IMPORTANT FIX: use backend filter if available, otherwise fallback
+        const response = await fetch(
+            `https://luckyjuniorschool.onrender.com/api/students`
         );
-
-        // SAVE CLASS
-        window.selectedClassName =
-            selectedClass;
-
-       // FETCH STUDENTS
-const response = await fetch(
-    `https://luckyjuniorschool.onrender.com/api/students`,
-    {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }
-);
 
         if (!response.ok) {
-
-            throw new Error(
-                `HTTP Error ${response.status}`
-            );
+            throw new Error(`HTTP Error ${response.status}`);
         }
 
-        // RESPONSE
-        const result =
-            await response.json();
+        const result = await response.json();
 
-        console.log(
-            'FULL API RESULT:',
-            result
-        );
+        console.log('FULL API RESULT:', result);
 
-        console.log(
-            'RESULT TYPE:',
-            typeof result
-        );
+        const students =
+            Array.isArray(result)
+                ? result
+                : (result.data || result.students || []);
 
-        console.log(
-            'RESULT KEYS:',
-            Object.keys(result)
-        );
+        // FILTER
+        const filteredStudents = students.filter(student => {
 
-        console.log(
-            'ENTIRE RESPONSE:',
-            JSON.stringify(result, null, 2)
-        );
+            const studentClass =
+                student.class ||
+                student.className ||
+                student.grade;
 
-        // GET STUDENTS ARRAY
-        let students = [];
-
-        if (Array.isArray(result)) {
-
-            students = result;
-
-        } else if (Array.isArray(result.data)) {
-
-            students = result.data;
-
-        } else if (Array.isArray(result.students)) {
-
-            students = result.students;
-        }
-
-        // FILTER BY CLASS
-        students = students.filter(student => {
-
-            return (
-                student.class === selectedClass ||
-                student.className === selectedClass ||
-                student.grade === selectedClass
-            );
+            return studentClass === selectedClass;
         });
 
-        // SAVE GLOBALLY
-        window.selectedClassStudents =
-            students;
+        window.selectedClassStudents = filteredStudents;
 
-        console.log(
-            'FILTERED STUDENTS:',
-            students
-        );
+        console.log('FILTERED STUDENTS:', filteredStudents);
+        console.log(`Loaded ${filteredStudents.length} students`);
 
-        console.log(
-            `Loaded ${students.length} students`
-        );
-
-        // SUCCESS MESSAGE
-        alert(
-            `${students.length} students loaded`
-        );
+        alert(`${filteredStudents.length} students loaded`);
 
     } catch (error) {
 
-        console.error(
-            'Error loading students:',
-            error
-        );
+        console.error('Error loading students:', error);
 
         window.selectedClassStudents = [];
         window.selectedClassName = '';
 
-        alert(
-            'Failed to load students'
-        );
+        alert('Failed to load students');
     }
 }
 
 // -------------------------------
 // GLOBAL ACCESS
 // -------------------------------
-window.loadClasses =
-    loadClasses;
-
-window.handleBulkClassChange =
-    handleBulkClassChange;
+window.loadClasses = loadClasses;
+window.handleBulkClassChange = handleBulkClassChange;
 
 // -------------------------------
 // AUTO LOAD
 // -------------------------------
-document.addEventListener(
-    'DOMContentLoaded',
-    () => {
+document.addEventListener('DOMContentLoaded', () => {
 
-        console.log(
-            'Bulk fee page ready'
-        );
+    console.log('Bulk fee page ready');
 
-        loadClasses();
-    }
-);
+    loadClasses();
+});
 
 // -------------------------------
 // MODULE LOADED
 // -------------------------------
-console.log(
-    'Bulk Fee Class Module Loaded'
-);
+console.log('Bulk Fee Class Module Loaded');
