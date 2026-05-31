@@ -1,3 +1,4 @@
+
 // ===============================
 // Initialize Accountant Page
 // ===============================
@@ -5,42 +6,35 @@ function initializeAccountantPage() {
 
     console.log('Initializing accountant page');
 
-    // Load classes
-    if (typeof loadClasses === 'function') {
-        loadClasses();
-    }
+    const init = () => {
 
-    // Load bulk fee form
-    if (typeof initializeBulkFeeForm === 'function') {
-        initializeBulkFeeForm();
-    }
+        const classSelect = document.getElementById('fee-class-name');
 
-    // Load fee records
-    if (typeof loadFeeRecords === 'function') {
-        loadFeeRecords();
-    }
-
-    // Debug button
-    const debugButton = document.createElement('button');
-
-    debugButton.textContent = 'Debug: Load Test Students';
-    debugButton.style.margin = '10px';
-    debugButton.style.padding = '5px 10px';
-
-    debugButton.onclick = () => {
-        const studentSelect = document.getElementById('fee-student-id');
-
-        if (studentSelect && typeof loadMockStudents === 'function') {
-            loadMockStudents(studentSelect);
+        if (!classSelect) {
+            console.warn('Class dropdown not ready yet, retrying...');
+            setTimeout(init, 200);
+            return;
         }
+
+        // SAFE INITIALIZATION FLOW
+        if (typeof loadClasses === 'function') {
+            loadClasses();
+        }
+
+        if (typeof initializeBulkFeeForm === 'function') {
+            initializeBulkFeeForm();
+        }
+
+        if (typeof loadFeeRecords === 'function') {
+            loadFeeRecords();
+        }
+
+        console.log('Accountant initialized successfully');
     };
 
-    const formContainer = document.querySelector('#accountant-section .form-container');
-
-    if (formContainer) {
-        formContainer.appendChild(debugButton);
-    }
+    init();
 }
+
 
 // ===============================
 // Bulk Fee Form
@@ -51,7 +45,11 @@ function initializeBulkFeeForm() {
 
     if (!form) return;
 
-    form.addEventListener('submit', async (e) => {
+    // Prevent duplicate event listeners
+    form.removeEventListener('submit', handleSubmit);
+    form.addEventListener('submit', handleSubmit);
+
+    async function handleSubmit(e) {
         e.preventDefault();
 
         const students = window.selectedClassStudents || [];
@@ -102,15 +100,19 @@ function initializeBulkFeeForm() {
             console.error(err);
             alert("Error saving fees");
         }
-    });
+    }
 }
 
-// expose
+
+// ===============================
+// GLOBAL EXPORTS
+// ===============================
 window.initializeBulkFeeForm = initializeBulkFeeForm;
 window.initializeAccountantPage = initializeAccountantPage;
 
+
 // ===============================
-// DOM READY
+// DOM READY (SAFE + RELIABLE)
 // ===============================
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -122,17 +124,21 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeAccountantPage();
 });
 
+
 // ===============================
-// Fallback load
+// FALLBACK (FOR LATE SCRIPT LOAD)
 // ===============================
-if (
-    document.readyState === 'complete' ||
-    document.readyState === 'interactive'
-) {
+(function safeInit() {
+
     const accountantSection =
         document.getElementById('accountant-section');
 
-    if (accountantSection) {
+    if (!accountantSection) return;
+
+    if (
+        document.readyState === 'complete' ||
+        document.readyState === 'interactive'
+    ) {
         initializeAccountantPage();
     }
-}
+})();
