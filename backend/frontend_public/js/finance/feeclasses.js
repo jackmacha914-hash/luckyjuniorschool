@@ -11,7 +11,7 @@ function loadClasses() {
 
     // BULK CLASS DROPDOWN
     const classSelect =
-        document.getElementById('bulk-fee-class');
+        document.getElementById('fee-class-name');
 
     if (!classSelect) {
 
