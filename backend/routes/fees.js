@@ -483,7 +483,6 @@ router.post('/bulk-create', async (req, res) => {
     // VALIDATION
     // -------------------------------
     if (!students || !Array.isArray(students) || students.length === 0) {
-
       return res.status(400).json({
         success: false,
         error: 'Students array is required'
@@ -491,55 +490,60 @@ router.post('/bulk-create', async (req, res) => {
     }
 
     if (!feeData) {
-
       return res.status(400).json({
         success: false,
         error: 'Fee data is required'
       });
     }
 
+    const Fee = require('../models/Fee');
+
     // -------------------------------
-    // CREATE FEES
+    // BUILD FEES WITH CARRY FORWARD
     // -------------------------------
-    const feesToCreate = students.map(studentId => ({
+    const feesToCreate = students.map(studentId => {
 
-      student: studentId,
+      const currentFee = Number(feeData.feesPerTerm) || 0;
+      const previousBalance = Number(feeData.previousBalance) || 0;
 
-      className: feeData.className,
+      const totalPayable = previousBalance + currentFee;
 
-      amount: Number(feeData.feesPerTerm) || 0,
+      return {
+        student: studentId,
+        className: feeData.className,
 
-      feesPerTerm: Number(feeData.feesPerTerm) || 0,
+        // CORE FIELDS
+        previousBalance,
+        currentTermFee: currentFee,
+        totalPayable,
 
-      bal: Number(feeData.balance) || 0,
+        paidAmount: 0,
+        balance: totalPayable,
 
-      status:
-        Number(feeData.balance) <= 0
-          ? 'Paid'
-          : 'Pending',
+        status: totalPayable <= 0 ? 'paid' : 'pending',
 
-      dueDate: feeData.dueDate || null,
+        dueDate: feeData.dueDate || null,
+        academicYear: feeData.academicYear || '',
+        academicTerm: feeData.academicTerm || '',
+        description: feeData.notes || '',
+        feeType: 'tuition',
 
-      academicYear: feeData.academicYear || '',
+        // LEGACY SUPPORT (SAFE)
+        feesPerTerm: currentFee,
+        bal: totalPayable,
 
-      academicTerm: feeData.academicTerm || '',
-
-      notes: feeData.notes || '',
-
-      date: new Date()
-    }));
+        createdAt: new Date()
+      };
+    });
 
     console.log('Fees to create:', feesToCreate);
 
     // -------------------------------
     // INSERT MANY
     // -------------------------------
-    const createdFees =
-      await Fee.insertMany(feesToCreate);
+    const createdFees = await Fee.insertMany(feesToCreate);
 
-    console.log(
-      `${createdFees.length} fees created successfully`
-    );
+    console.log(`${createdFees.length} fees created successfully`);
 
     // -------------------------------
     // RESPONSE
@@ -552,10 +556,7 @@ router.post('/bulk-create', async (req, res) => {
 
   } catch (err) {
 
-    console.error(
-      'Bulk create error:',
-      err
-    );
+    console.error('Bulk create error:', err);
 
     res.status(500).json({
       success: false,
@@ -564,5 +565,4 @@ router.post('/bulk-create', async (req, res) => {
     });
   }
 });
-
 module.exports = router;
