@@ -197,3 +197,14 @@ document.addEventListener(
 console.log(
     'Bulk Fee Class Module Loaded'
 );
+console.log('FULL API RESULT:', result);
+
+console.log('RESULT TYPE:', typeof result);
+
+console.log('RESULT KEYS:', Object.keys(result));
+
+console.log('STUDENTS DATA:', result.students);
+
+console.log('DATA FIELD:', result.data);
+
+console.log('ENTIRE RESPONSE:', JSON.stringify(result, null, 2));
