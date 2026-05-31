@@ -2689,75 +2689,76 @@ window.fetch = async (input, init = {}) => {
   </div>
 </div>
       <!-- Accountant Section (Modernized) -->
-        <section id="accountant-section" class="tab-section" style="display:none;">
-            <h2>Accountant / Fee Management</h2>
-            <div id="fees-bulk-toolbar" style="display:none; margin-bottom: 10px;">
-                <button id="fees-bulk-delete" disabled>Delete Selected</button>
-                <button id="fees-bulk-export" disabled>Export Selected</button>
+        <!-- Accountant Section (Bulk Fee Management) -->
+<section id="accountant-section" class="tab-section" style="display:none;">
+    <h2>Fee Management (Bulk Mode)</h2>
+
+    <div class="form-container">
+        <h3>Assign Fees to Entire Class</h3>
+
+        <form id="bulk-fee-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <!-- CLASS -->
+            <div class="form-group">
+                <label for="bulk-fee-class">Class</label>
+                <select id="bulk-fee-class" class="w-full p-2 border rounded" required>
+                    <option value="">Select Class</option>
+                </select>
             </div>
-            <div class="form-container">
-                <h3>Add Fee Record</h3>
-                <form id="fee-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-group">
-                        <label for="fee-class-name">Class</label>
-                        <select id="fee-class-name" class="w-full p-2 border rounded" required>
-                            <option value="">Select a class</option>
-                            <!-- Classes will be populated by JavaScript -->
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="fee-student-id">Student</label>
-                        <select id="fee-student-id" class="w-full p-2 border rounded" required disabled>
-                            <option value="">Select a class first</option>
-                            <!-- Students will be populated based on class selection -->
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="fee-fees-per-term">Fees Per Term (Ksh)</label>
-                        <input type="number" id="fee-fees-per-term" class="w-full" placeholder="Total fees per term" required>
-                    </div>
-                   
-                    <div class="form-group">
-                        <label for="fee-bal">Balance (Ksh)</label>
-                        <input type="number" id="fee-bal" class="w-full" placeholder="Current balance" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="fee-due-date">Due Date</label>
-                        <input type="date" id="fee-due-date" class="w-full" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="fee-academic-year">Academic Year</label>
-                        <select id="fee-academic-year" class="w-full p-2 border rounded" required>
-                            <option value="">Select Academic Year</option>
-                            <option value="2025/2026">2025/2026</option>
-                            <option value="2024/2025">2024/2025</option>
-                            <option value="2023/2024">2023/2024</option>
-                            <option value="2022/2023">2022/2023</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="fee-academic-term">Academic Term</label>
-                        <select id="fee-academic-term" class="w-full p-2 border rounded" required>
-                            <option value="">Select Term</option>
-                            <option value="Term 1">Term 1</option>
-                            <option value="Term 2">Term 2</option>
-                            <option value="Term 3">Term 3</option>
-                        </select>
-                    </div>
-                    <div class="form-group md:col-span-2">
-                        <label for="fee-notes">Notes</label>
-                        <textarea id="fee-notes" class="w-full" rows="2" placeholder="Any additional notes"></textarea>
-                    </div>
-                    <div class="form-group md:col-span-2 flex gap-4">
-                        <button type="submit" class="btn btn-primary flex-1">
-                            <i class="fas fa-save mr-2"></i>Save Fee Record
-                        </button>
-                        <button type="button" id="print-receipt-btn" class="btn btn-secondary flex-1" disabled>
-                            <i class="fas fa-print mr-2"></i>Print Receipt
-                        </button>
-                    </div>
-                </form>
+
+            <!-- TERM -->
+            <div class="form-group">
+                <label for="bulk-fee-term">Academic Term</label>
+                <select id="bulk-fee-term" class="w-full p-2 border rounded" required>
+                    <option value="">Select Term</option>
+                    <option value="Term 1">Term 1</option>
+                    <option value="Term 2">Term 2</option>
+                    <option value="Term 3">Term 3</option>
+                </select>
             </div>
+
+            <!-- YEAR -->
+            <div class="form-group">
+                <label for="bulk-fee-year">Academic Year</label>
+                <select id="bulk-fee-year" class="w-full p-2 border rounded" required>
+                    <option value="">Select Year</option>
+                    <option value="2025/2026">2025/2026</option>
+                    <option value="2024/2025">2024/2025</option>
+                    <option value="2023/2024">2023/2024</option>
+                </select>
+            </div>
+
+            <!-- FEE AMOUNT -->
+            <div class="form-group">
+                <label for="bulk-fee-amount">Fee Per Student (Ksh)</label>
+                <input type="number" id="bulk-fee-amount" class="w-full p-2 border rounded" required>
+            </div>
+
+            <!-- DUE DATE -->
+            <div class="form-group">
+                <label for="bulk-fee-due">Due Date</label>
+                <input type="date" id="bulk-fee-due" class="w-full p-2 border rounded" required>
+            </div>
+
+            <!-- NOTES -->
+            <div class="form-group md:col-span-2">
+                <label for="bulk-fee-notes">Notes (Optional)</label>
+                <textarea id="bulk-fee-notes" class="w-full p-2 border rounded" rows="2"></textarea>
+            </div>
+
+            <!-- SUBMIT -->
+            <div class="form-group md:col-span-2">
+                <button type="submit" class="btn btn-primary w-full">
+                    Assign Fees to Entire Class
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- RESULT PREVIEW -->
+    <div id="bulk-result" style="margin-top:20px;"></div>
+</section>
             <div class="form-container">
                 <h3>All Fee Records</h3>
                 <!-- Advanced Filters for Fees -->
