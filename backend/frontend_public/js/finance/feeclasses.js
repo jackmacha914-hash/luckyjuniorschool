@@ -13,39 +13,32 @@ function loadClasses() {
         document.getElementById('fee-class-name');
 
     if (!classSelect) {
-
-        console.error(
-            'Could not find fee-class-name element'
-        );
-
+        console.error('Could not find fee-class-name element');
         return;
     }
 
     try {
 
-        // RESET
         classSelect.innerHTML =
             '<option value="">Select a class</option>';
 
-        // POPULATE
-        CLASS_GROUPS.forEach(group => {
+        // SAFE CHECK (prevents crash)
+        const groups = window.CLASS_GROUPS || [];
+
+        groups.forEach(group => {
 
             const optgroup =
                 document.createElement('optgroup');
 
-            optgroup.label =
-                group.label;
+            optgroup.label = group.label;
 
             group.classes.forEach(cls => {
 
                 const option =
                     document.createElement('option');
 
-                option.value =
-                    cls.value;
-
-                option.textContent =
-                    cls.text;
+                option.value = cls.value;
+                option.textContent = cls.text;
 
                 optgroup.appendChild(option);
             });
@@ -55,28 +48,21 @@ function loadClasses() {
 
         classSelect.disabled = false;
 
-        // REMOVE OLD LISTENER
         classSelect.removeEventListener(
             'change',
             handleBulkClassChange
         );
 
-        // ADD NEW LISTENER
         classSelect.addEventListener(
             'change',
             handleBulkClassChange
         );
 
-        console.log(
-            'Classes loaded successfully'
-        );
+        console.log('Classes loaded successfully');
 
     } catch (error) {
 
-        console.error(
-            'Error loading classes:',
-            error
-        );
+        console.error('Error loading classes:', error);
 
         classSelect.innerHTML =
             '<option value="">Error loading classes</option>';
@@ -91,154 +77,74 @@ async function handleBulkClassChange(event) {
     const selectedClass =
         event.target.value;
 
-    // RESET
     window.selectedClassStudents = [];
     window.selectedClassName = '';
 
-    if (!selectedClass) {
-        return;
-    }
+    if (!selectedClass) return;
 
     try {
 
-        console.log(
-            'Loading students for:',
-            selectedClass
+        console.log('Loading students for:', selectedClass);
+
+        window.selectedClassName = selectedClass;
+
+        // ✅ FIXED: backend filtered endpoint (BEST PRACTICE)
+        const response = await fetch(
+            `https://luckyjuniorschool.onrender.com/api/students/class/${encodeURIComponent(selectedClass)}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
         );
-
-        // SAVE CLASS
-        window.selectedClassName =
-            selectedClass;
-
-       // FETCH STUDENTS
-const response = await fetch(
-    `https://luckyjuniorschool.onrender.com/api/students`,
-    {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }
-);
 
         if (!response.ok) {
-
-            throw new Error(
-                `HTTP Error ${response.status}`
-            );
+            throw new Error(`HTTP Error ${response.status}`);
         }
 
-        // RESPONSE
-        const result =
-            await response.json();
+        const result = await response.json();
 
-        console.log(
-            'FULL API RESULT:',
-            result
-        );
+        console.log('FULL API RESULT:', result);
 
-        console.log(
-            'RESULT TYPE:',
-            typeof result
-        );
+        // ✅ ALWAYS NORMALIZE DATA SAFELY
+        const students =
+            Array.isArray(result)
+                ? result
+                : (result.data || result.students || []);
 
-        console.log(
-            'RESULT KEYS:',
-            Object.keys(result)
-        );
+        window.selectedClassStudents = students;
 
-        console.log(
-            'ENTIRE RESPONSE:',
-            JSON.stringify(result, null, 2)
-        );
+        console.log('FILTERED STUDENTS:', students);
+        console.log(`Loaded ${students.length} students`);
 
-        // GET STUDENTS ARRAY
-        let students = [];
-
-        if (Array.isArray(result)) {
-
-            students = result;
-
-        } else if (Array.isArray(result.data)) {
-
-            students = result.data;
-
-        } else if (Array.isArray(result.students)) {
-
-            students = result.students;
-        }
-
-        // FILTER BY CLASS
-        students = students.filter(student => {
-
-            return (
-                student.class === selectedClass ||
-                student.className === selectedClass ||
-                student.grade === selectedClass
-            );
-        });
-
-        // SAVE GLOBALLY
-        window.selectedClassStudents =
-            students;
-
-        console.log(
-            'FILTERED STUDENTS:',
-            students
-        );
-
-        console.log(
-            `Loaded ${students.length} students`
-        );
-
-        // SUCCESS MESSAGE
-        alert(
-            `${students.length} students loaded`
-        );
+        // ❌ removed alert (too noisy)
+        console.log(`${students.length} students loaded`);
 
     } catch (error) {
 
-        console.error(
-            'Error loading students:',
-            error
-        );
+        console.error('Error loading students:', error);
 
         window.selectedClassStudents = [];
         window.selectedClassName = '';
-
-        alert(
-            'Failed to load students'
-        );
     }
 }
 
 // -------------------------------
 // GLOBAL ACCESS
 // -------------------------------
-window.loadClasses =
-    loadClasses;
-
-window.handleBulkClassChange =
-    handleBulkClassChange;
+window.loadClasses = loadClasses;
+window.handleBulkClassChange = handleBulkClassChange;
 
 // -------------------------------
 // AUTO LOAD
 // -------------------------------
-document.addEventListener(
-    'DOMContentLoaded',
-    () => {
-
-        console.log(
-            'Bulk fee page ready'
-        );
-
-        loadClasses();
-    }
-);
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Bulk fee page ready');
+    loadClasses();
+});
 
 // -------------------------------
 // MODULE LOADED
 // -------------------------------
-console.log(
-    'Bulk Fee Class Module Loaded'
-);
+console.log('Bulk Fee Class Module Loaded');
