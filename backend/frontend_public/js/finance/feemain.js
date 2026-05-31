@@ -52,121 +52,174 @@ function initializeBulkFeeForm() {
 
     if (!form) return;
 
-    // Prevent duplicate listeners
-    form.removeEventListener(
-        'submit',
-        handleSubmit
-    );
+    // -------------------------------
+    // STOP DOUBLE INITIALIZATION
+    // -------------------------------
+    if (form.dataset.initialized === 'true') {
 
+        console.log(
+            'Bulk fee form already initialized'
+        );
+
+        return;
+    }
+
+    form.dataset.initialized = 'true';
+
+    // -------------------------------
+    // SUBMIT HANDLER
+    // -------------------------------
     form.addEventListener(
         'submit',
-        handleSubmit
-    );
+        async function handleSubmit(e) {
 
-    async function handleSubmit(e) {
+            e.preventDefault();
 
-        e.preventDefault();
-
-        const students =
-            window.selectedClassStudents || [];
-
-        const className =
-            window.selectedClassName;
-
-        // VALIDATION
-        if (!className) {
-
-            alert('Select a class first');
-            return;
-        }
-
-        if (!students.length) {
-
-            alert('No students found');
-            return;
-        }
-
-        // FORM DATA
-        const feeData = {
-
-            feesPerTerm:
-                Number(
-                    document.getElementById('fee-fees-per-term').value
-                ) || 0,
-
-            balance:
-                Number(
-                    document.getElementById('fee-bal').value
-                ) || 0,
-
-            dueDate:
-                document.getElementById('fee-due-date').value,
-
-            academicYear:
-                document.getElementById('fee-academic-year').value,
-
-            academicTerm:
-                document.getElementById('fee-academic-term').value,
-
-            notes:
-                document.getElementById('fee-notes').value,
-
-            className
-        };
-
-        console.log(
-            'Submitting bulk fee data:',
-            feeData
-        );
-
-        console.log(
-            'Students:',
-            students
-        );
-
-        try {
-
-            const response = await fetch(
-                'https://luckyjuniorschool.onrender.com/api/fees/bulk-create',
-                {
-                    method: 'POST',
-
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-
-                    body: JSON.stringify({
-
-                        // SEND IDS ONLY
-                        students:
-                            students.map(s => s._id),
-
-                        feeData
-                    })
-                }
-            );
-
-            const result =
-                await response.json();
-
-            console.log(
-                'Bulk save response:',
-                result
-            );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    result.error || 'Bulk save failed'
-                );
+            // -------------------------------
+            // PREVENT DOUBLE CLICK
+            // -------------------------------
+            if (form.dataset.submitting === 'true') {
+                return;
             }
 
-            alert(
-                `Fees added for ${students.length} students`
+            form.dataset.submitting = 'true';
+
+            const students =
+                window.selectedClassStudents || [];
+
+            const className =
+                window.selectedClassName;
+
+            // VALIDATION
+            if (!className) {
+
+                form.dataset.submitting = 'false';
+
+                alert('Select a class first');
+
+                return;
+            }
+
+            if (!students.length) {
+
+                form.dataset.submitting = 'false';
+
+                alert('No students found');
+
+                return;
+            }
+
+            // FORM DATA
+            const feeData = {
+
+                feesPerTerm:
+                    Number(
+                        document.getElementById('fee-fees-per-term').value
+                    ) || 0,
+
+                balance:
+                    Number(
+                        document.getElementById('fee-bal').value
+                    ) || 0,
+
+                dueDate:
+                    document.getElementById('fee-due-date').value,
+
+                academicYear:
+                    document.getElementById('fee-academic-year').value,
+
+                academicTerm:
+                    document.getElementById('fee-academic-term').value,
+
+                notes:
+                    document.getElementById('fee-notes').value,
+
+                className
+            };
+
+            // IDS ONLY
+            const studentIds =
+                students.map(s => s._id);
+
+            console.log(
+                'Submitting bulk fee data:',
+                feeData
             );
 
-            form.reset();
+            console.log(
+                'Student IDs:',
+                studentIds
+            );
+
+            try {
+
+                const response = await fetch(
+                    'https://luckyjuniorschool.onrender.com/api/fees/bulk-create',
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization':
+                                `Bearer ${localStorage.getItem('token')}`
+                        },
+
+                        body: JSON.stringify({
+                            students: studentIds,
+                            feeData
+                        })
+                    }
+                );
+
+                const result =
+                    await response.json();
+
+                console.log(
+                    'Bulk save response:',
+                    result
+                );
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        result.error || 'Bulk save failed'
+                    );
+                }
+
+                alert(
+                    `Fees added for ${studentIds.length} students`
+                );
+
+                form.reset();
+
+                // CLEAR GLOBALS
+                window.selectedClassStudents = [];
+                window.selectedClassName = '';
+
+                // RELOAD TABLE
+                if (typeof loadFeeRecords === 'function') {
+
+                    loadFeeRecords();
+                }
+
+            } catch (err) {
+
+                console.error(
+                    'Bulk fee save error:',
+                    err
+                );
+
+                alert(
+                    err.message || 'Error saving fees'
+                );
+
+            } finally {
+
+                form.dataset.submitting = 'false';
+            }
+        }
+    );
+}
 
             // RESET GLOBALS
             window.selectedClassStudents = [];
