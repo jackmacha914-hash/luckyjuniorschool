@@ -4781,6 +4781,23 @@ window.fetch = async (input, init = {}) => {
     <script src="../js/accountant-fees.js"></script>
     <script src="/js/meals-collections.js"></script>
    <script src="/js/accountant-new.js"></script>
+    <!-- 1. CONFIG (must load first) -->
+<script src="js/finance/feeconfig.js"></script>
+
+<!-- 2. CLASSES (depends on config) -->
+<script src="js/finance/feeclasses.js"></script>
+
+<!-- 3. FEE FORM (depends on config + classes) -->
+<script src="js/finance/feeForm.js"></script>
+
+<!-- 4. RECORDS (optional later) -->
+<script src="js/finance/feeRecords.js"></script>
+
+<!-- 5. RECEIPTS (optional) -->
+<script src="js/finance/feereceipt.js"></script>
+
+<!-- 6. MAIN INIT (must be last) -->
+<script src="js/finance/feemain.js"></script>
                     
     
     
