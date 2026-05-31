@@ -510,7 +510,7 @@ function initializeFeeForm() {
         
         // Prepare the basic fee data that matches the backend model
         const formData = {
-            student: studentSelect.value,
+            students: students.map(s => s._id) ✅
             className: classSelect.options[classSelect.selectedIndex]?.text || '',
             amount: parseCurrency(totalFeesInput?.value) || 0,
             status: balance <= 0 ? 'Paid' : 'Pending',
