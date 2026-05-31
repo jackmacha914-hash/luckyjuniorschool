@@ -499,33 +499,38 @@ router.post('/bulk-create', async (req, res) => {
     const Fee = require('../models/Fee');
 
     // -------------------------------
-    // BUILD FEES WITH REAL CARRY FORWARD
+    // STEP 1: FETCH ALL UNPAID BALANCES (OPTIMIZED)
     // -------------------------------
-    const feesToCreate = [];
+    const unpaidFees = await Fee.find({
+      student: { $in: students },
+      balance: { $gt: 0 }
+    }).lean();
 
-    for (const studentId of students) {
+    // -------------------------------
+    // STEP 2: BUILD BALANCE MAP
+    // -------------------------------
+    const balanceMap = {};
 
-      // 🔥 GET LAST UNPAID BALANCE FROM DB
-      const lastFee = await Fee.findOne({ student: studentId })
-        .sort({ createdAt: -1 });
+    unpaidFees.forEach(fee => {
+      const id = fee.student.toString();
+      balanceMap[id] = (balanceMap[id] || 0) + (fee.balance || 0);
+    });
 
-      let previousBalance = 0;
+    // -------------------------------
+    // STEP 3: BUILD BULK FEES
+    // -------------------------------
+    const currentFee = Number(feeData.feesPerTerm) || 0;
 
-      if (lastFee && lastFee.balance > 0) {
-        previousBalance = lastFee.balance;
-      }
+    const feesToCreate = students.map(studentId => {
 
-      // CURRENT TERM FEE
-      const currentFee = Number(feeData.feesPerTerm) || 0;
-
-      // TOTAL PAYABLE
+      const previousBalance = balanceMap[studentId] || 0;
       const totalPayable = previousBalance + currentFee;
 
-      feesToCreate.push({
+      return {
         student: studentId,
         className: feeData.className,
 
-        // CORE FIELDS
+        // CORE ACCOUNTING FIELDS
         previousBalance,
         currentTermFee: currentFee,
         totalPayable,
@@ -541,18 +546,16 @@ router.post('/bulk-create', async (req, res) => {
         description: feeData.notes || '',
         feeType: 'tuition',
 
-        // LEGACY SUPPORT
+        // LEGACY SUPPORT (SAFE)
         feesPerTerm: currentFee,
         bal: totalPayable,
 
         createdAt: new Date()
-      });
-    }
-
-    console.log('Fees to create:', feesToCreate);
+      };
+    });
 
     // -------------------------------
-    // INSERT MANY
+    // STEP 4: INSERT ALL AT ONCE
     // -------------------------------
     const createdFees = await Fee.insertMany(feesToCreate);
 
@@ -561,7 +564,7 @@ router.post('/bulk-create', async (req, res) => {
     // -------------------------------
     // RESPONSE
     // -------------------------------
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: `${createdFees.length} fee records created`,
       fees: createdFees
@@ -571,7 +574,7 @@ router.post('/bulk-create', async (req, res) => {
 
     console.error('Bulk create error:', err);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to create bulk fee records',
       details: err.message
