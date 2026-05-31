@@ -570,35 +570,70 @@ feeForm.addEventListener('submit', async (e) => {
   } else {
     // Whole Class
     try {
-      const resStudents = await fetch(`https://luckyjuniorschool.onrender.com/api/students/class/${encodeURIComponent(feeData.className)}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+
+        const resStudents = await fetch(
+            `https://luckyjuniorschool.onrender.com/api/students`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            }
+        );
+
+        if (!resStudents.ok) {
+            throw new Error(`HTTP error! status: ${resStudents.status}`);
         }
-      });
-      if (!resStudents.ok) throw new Error(`HTTP error! status: ${resStudents.status}`);
-      const students = await resStudents.json();
 
-      // Send fee data for each student
-      await Promise.all(students.map(async (s) => {
-        const studentFeeData = { ...feeData, studentId: s.id };
-        const res = await fetch(`https://luckyjuniorschool.onrender.com/api/fees`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          body: JSON.stringify(studentFeeData)
-        });
-        if (!res.ok) console.error(`Failed for student ${s.name}`, await res.text());
-      }));
+        const result = await resStudents.json();
 
-      alert(`Fees successfully added for all students in ${feeData.className}!`);
+        console.log("STUDENTS API RESPONSE:", result);
+
+        const students = Array.isArray(result)
+            ? result
+            : (result.data || result.students || []);
+
+        // FILTER BY CLASS
+        const filtered = students.filter(s =>
+            s.class === feeData.className ||
+            s.classAssigned === feeData.className
+        );
+
+        console.log("FILTERED STUDENTS:", filtered);
+
+        await Promise.all(filtered.map(async (s) => {
+
+            const studentFeeData = {
+                ...feeData,
+                studentId: s._id   // ✅ FIXED HERE
+            };
+
+            const res = await fetch(
+                `https://luckyjuniorschool.onrender.com/api/fees`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(studentFeeData)
+                }
+            );
+
+            if (!res.ok) {
+                console.error(
+                    `Failed for student ${s.name}`,
+                    await res.text()
+                );
+            }
+        }));
+
+        alert(`Fees successfully added for ${filtered.length} students in ${feeData.className}!`);
 
     } catch (err) {
-      console.error("Error adding fees for class:", err);
-      alert("Failed to add fees for class. Check console for details.");
+        console.error("Error adding fees for class:", err);
+        alert("Failed to add fees for class. Check console for details.");
     }
-  }
+}
 
   // Reset form
   feeForm.reset();
