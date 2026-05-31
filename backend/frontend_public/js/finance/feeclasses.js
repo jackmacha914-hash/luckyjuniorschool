@@ -9,14 +9,13 @@ function loadClasses() {
 
     console.log('Loading classes...');
 
-    // BULK CLASS DROPDOWN
     const classSelect =
         document.getElementById('fee-class-name');
 
     if (!classSelect) {
 
         console.error(
-            'Could not find bulk-fee-class element'
+            'Could not find fee-class-name element'
         );
 
         return;
@@ -28,7 +27,7 @@ function loadClasses() {
         classSelect.innerHTML =
             '<option value="">Select a class</option>';
 
-        // POPULATE CLASSES
+        // POPULATE
         CLASS_GROUPS.forEach(group => {
 
             const optgroup =
@@ -54,7 +53,6 @@ function loadClasses() {
             classSelect.appendChild(optgroup);
         });
 
-        // ENABLE
         classSelect.disabled = false;
 
         // REMOVE OLD LISTENER
@@ -114,7 +112,7 @@ async function handleBulkClassChange(event) {
 
         // FETCH STUDENTS
         const response = await fetch(
-            `${API_BASE_URL}/students/class/${encodeURIComponent(selectedClass)}`,
+            `https://luckyjuniorschool.onrender.com/api/students`,
             {
                 method: 'GET',
                 headers: getFetchHeaders()
@@ -133,22 +131,67 @@ async function handleBulkClassChange(event) {
             await response.json();
 
         console.log(
-            'API Response:',
+            'FULL API RESULT:',
             result
         );
 
-        // STUDENTS ARRAY
-        const students =
-            Array.isArray(result)
-                ? result
-                : (result.data || []);
+        console.log(
+            'RESULT TYPE:',
+            typeof result
+        );
+
+        console.log(
+            'RESULT KEYS:',
+            Object.keys(result)
+        );
+
+        console.log(
+            'ENTIRE RESPONSE:',
+            JSON.stringify(result, null, 2)
+        );
+
+        // GET STUDENTS ARRAY
+        let students = [];
+
+        if (Array.isArray(result)) {
+
+            students = result;
+
+        } else if (Array.isArray(result.data)) {
+
+            students = result.data;
+
+        } else if (Array.isArray(result.students)) {
+
+            students = result.students;
+        }
+
+        // FILTER BY CLASS
+        students = students.filter(student => {
+
+            return (
+                student.class === selectedClass ||
+                student.className === selectedClass ||
+                student.grade === selectedClass
+            );
+        });
 
         // SAVE GLOBALLY
         window.selectedClassStudents =
             students;
 
         console.log(
+            'FILTERED STUDENTS:',
+            students
+        );
+
+        console.log(
             `Loaded ${students.length} students`
+        );
+
+        // SUCCESS MESSAGE
+        alert(
+            `${students.length} students loaded`
         );
 
     } catch (error) {
@@ -197,14 +240,3 @@ document.addEventListener(
 console.log(
     'Bulk Fee Class Module Loaded'
 );
-console.log('FULL API RESULT:', result);
-
-console.log('RESULT TYPE:', typeof result);
-
-console.log('RESULT KEYS:', Object.keys(result));
-
-console.log('STUDENTS DATA:', result.students);
-
-console.log('DATA FIELD:', result.data);
-
-console.log('ENTIRE RESPONSE:', JSON.stringify(result, null, 2));
