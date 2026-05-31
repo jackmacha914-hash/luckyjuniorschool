@@ -1,4 +1,3 @@
-```javascript id="zrcx2m"
 // ===============================
 // RECEIPT MANAGEMENT
 // js/finance/receipt.js
@@ -437,4 +436,4 @@ window.printReceipt = printReceipt;
 console.log(
     'Finance Receipt Module Loaded Successfully'
 );
-```
+
