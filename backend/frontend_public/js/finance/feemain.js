@@ -1,7 +1,51 @@
 // ===============================
 // Initialize Accountant Page
 // ===============================
-function initializeAccountanfunction initializeBulkFeeForm() {
+function initializeAccountantPage() {
+
+    console.log('Initializing accountant page');
+
+    // Load classes
+    if (typeof loadClasses === 'function') {
+        loadClasses();
+    }
+
+    // Load bulk fee form
+    if (typeof initializeBulkFeeForm === 'function') {
+        initializeBulkFeeForm();
+    }
+
+    // Load fee records
+    if (typeof loadFeeRecords === 'function') {
+        loadFeeRecords();
+    }
+
+    // Debug button
+    const debugButton = document.createElement('button');
+
+    debugButton.textContent = 'Debug: Load Test Students';
+    debugButton.style.margin = '10px';
+    debugButton.style.padding = '5px 10px';
+
+    debugButton.onclick = () => {
+        const studentSelect = document.getElementById('fee-student-id');
+
+        if (studentSelect && typeof loadMockStudents === 'function') {
+            loadMockStudents(studentSelect);
+        }
+    };
+
+    const formContainer = document.querySelector('#accountant-section .form-container');
+
+    if (formContainer) {
+        formContainer.appendChild(debugButton);
+    }
+}
+
+// ===============================
+// Bulk Fee Form
+// ===============================
+function initializeBulkFeeForm() {
 
     const form = document.getElementById('fee-form');
 
@@ -18,7 +62,7 @@ function initializeAccountanfunction initializeBulkFeeForm() {
             return;
         }
 
-        if (students.length === 0) {
+        if (!students.length) {
             alert("No students found");
             return;
         }
@@ -50,7 +94,9 @@ function initializeAccountanfunction initializeBulkFeeForm() {
 
             form.reset();
 
-            loadFeeRecords();
+            if (typeof loadFeeRecords === 'function') {
+                loadFeeRecords();
+            }
 
         } catch (err) {
             console.error(err);
@@ -59,67 +105,32 @@ function initializeAccountanfunction initializeBulkFeeForm() {
     });
 }
 
-window.initializeBulkFeeForm = initializeBulkFeeForm;tPage() {
-    console.log('Initializing accountant page');
-
-    // Core initializers (from other modules)
-    if (typeof loadClasses === 'function') loadClasses();
-    if (typeof initializeFeeForm === 'function') initializeBulkFeeForm();
-    if (typeof loadFeeRecords === 'function') loadFeeRecords();
-
-    // ===============================
-    // Debug Button (safe)
-    // ===============================
-    const debugButton = document.createElement('button');
-
-    debugButton.textContent = 'Debug: Load Test Students';
-    debugButton.style.margin = '10px';
-    debugButton.style.padding = '5px 10px';
-
-    debugButton.onclick = () => {
-        const studentSelect = document.getElementById('fee-student-id');
-
-        if (studentSelect && typeof loadMockStudents === 'function') {
-            loadMockStudents(studentSelect);
-        }
-    };
-
-    const formContainer = document.querySelector('#accountant-section .form-container');
-
-    if (formContainer) {
-        formContainer.appendChild(debugButton);
-    }
-}
+// expose
+window.initializeBulkFeeForm = initializeBulkFeeForm;
+window.initializeAccountantPage = initializeAccountantPage;
 
 // ===============================
-// DOM Ready
+// DOM READY
 // ===============================
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM fully loaded - Accountant Page');
 
-    const accountantSection = document.getElementById('accountant-section');
+    const accountantSection =
+        document.getElementById('accountant-section');
 
-    if (!accountantSection) {
-        console.log('Not on accountant page, skipping initialization');
-        return;
-    }
+    if (!accountantSection) return;
 
-    try {
-        initializeAccountantPage();
-        console.log('Accountant script loaded and initialized');
-    } catch (error) {
-        console.error('Error initializing accountant page:', error);
-    }
+    initializeAccountantPage();
 });
 
 // ===============================
-// Fallback if script loads late
+// Fallback load
 // ===============================
 if (
     document.readyState === 'complete' ||
     document.readyState === 'interactive'
 ) {
-    const accountantSection = document.getElementById('accountant-section');
+    const accountantSection =
+        document.getElementById('accountant-section');
 
     if (accountantSection) {
         initializeAccountantPage();
