@@ -79,7 +79,9 @@ function initializeBulkFeeForm() {
 
             const response = await fetch(`https://luckyjuniorschool.onrender.com/api/fees/bulk-create`, {
                 method: 'POST',
-                headers: getFetchHeaders(),
+                headers: {
+                  'Content-Type': 'application/json'
+                    }
                 body: JSON.stringify({
                     students,
                     feeData
