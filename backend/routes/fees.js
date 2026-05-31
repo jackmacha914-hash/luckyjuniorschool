@@ -467,4 +467,102 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// ===============================
+// BULK CREATE FEES
+// POST /api/fees/bulk-create
+// ===============================
+router.post('/bulk-create', async (req, res) => {
+
+  try {
+
+    const { students, feeData } = req.body;
+
+    console.log('Bulk create request:', req.body);
+
+    // -------------------------------
+    // VALIDATION
+    // -------------------------------
+    if (!students || !Array.isArray(students) || students.length === 0) {
+
+      return res.status(400).json({
+        success: false,
+        error: 'Students array is required'
+      });
+    }
+
+    if (!feeData) {
+
+      return res.status(400).json({
+        success: false,
+        error: 'Fee data is required'
+      });
+    }
+
+    // -------------------------------
+    // CREATE FEES
+    // -------------------------------
+    const feesToCreate = students.map(studentId => ({
+
+      student: studentId,
+
+      className: feeData.className,
+
+      amount: Number(feeData.feesPerTerm) || 0,
+
+      feesPerTerm: Number(feeData.feesPerTerm) || 0,
+
+      bal: Number(feeData.balance) || 0,
+
+      status:
+        Number(feeData.balance) <= 0
+          ? 'Paid'
+          : 'Pending',
+
+      dueDate: feeData.dueDate || null,
+
+      academicYear: feeData.academicYear || '',
+
+      academicTerm: feeData.academicTerm || '',
+
+      notes: feeData.notes || '',
+
+      date: new Date()
+    }));
+
+    console.log('Fees to create:', feesToCreate);
+
+    // -------------------------------
+    // INSERT MANY
+    // -------------------------------
+    const createdFees =
+      await Fee.insertMany(feesToCreate);
+
+    console.log(
+      `${createdFees.length} fees created successfully`
+    );
+
+    // -------------------------------
+    // RESPONSE
+    // -------------------------------
+    res.status(201).json({
+      success: true,
+      message: `${createdFees.length} fee records created`,
+      fees: createdFees
+    });
+
+  } catch (err) {
+
+    console.error(
+      'Bulk create error:',
+      err
+    );
+
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create bulk fee records',
+      details: err.message
+    });
+  }
+});
+
 module.exports = router;
