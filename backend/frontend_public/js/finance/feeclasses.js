@@ -110,14 +110,16 @@ async function handleBulkClassChange(event) {
         window.selectedClassName =
             selectedClass;
 
-        // FETCH STUDENTS
-        const response = await fetch(
-            `https://luckyjuniorschool.onrender.com/api/students`,
-            {
-                method: 'GET',
-                headers: getFetchHeaders()
-            }
-        );
+       // FETCH STUDENTS
+const response = await fetch(
+    `https://luckyjuniorschool.onrender.com/api/students`,
+    {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+);
 
         if (!response.ok) {
 
