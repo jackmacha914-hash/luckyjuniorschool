@@ -77,7 +77,7 @@ function initializeBulkFeeForm() {
 
         try {
 
-            const response = await fetch(`${API_BASE_URL}/fees/bulk-create`, {
+            const response = await fetch(`https://luckyjuniorschool.onrender.com/api/fees/bulk-create`, {
                 method: 'POST',
                 headers: getFetchHeaders(),
                 body: JSON.stringify({
