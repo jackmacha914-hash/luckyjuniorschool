@@ -28,12 +28,17 @@ function getAuthToken() {
 // These are assigned later after
 // functions are declared in other files
 // -------------------------------
-window.loadClasses = null;
-window.handleClassChange = null;
-window.calculateBalance = null;
-window.loadFeeRecords = null;
-window.printReceipt = null;
-window.viewFeeDetails = null;
+// Only expose constants, NOT functions
+window.API_BASE_URL = API_BASE_URL;
+window.CLASS_GROUPS = CLASS_GROUPS;
+window.CURRENCY = CURRENCY;
+window.LOCALE = LOCALE;
+window.APP_MESSAGES = APP_MESSAGES;
+window.FEE_STATUS = FEE_STATUS;
+window.RECEIPT_CONFIG = RECEIPT_CONFIG;
+window.TODAY = TODAY;
+window.ACADEMIC_TERMS = ACADEMIC_TERMS;
+window.MOCK_STUDENTS = MOCK_STUDENTS;
 
 // -------------------------------
 // Currency Configuration
