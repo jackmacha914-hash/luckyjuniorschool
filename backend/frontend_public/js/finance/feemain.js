@@ -3,7 +3,21 @@
 // ===============================
 function initializeAccountantPage() {
 
-    console.log('Initializing accountant page');
+    // STOP DOUBLE INITIALIZATION
+    if (window.accountantInitialized) {
+
+        console.log(
+            'Accountant already initialized'
+        );
+
+        return;
+    }
+
+    window.accountantInitialized = true;
+
+    console.log(
+        'Initializing accountant page'
+    );
 
     const init = () => {
 
@@ -17,19 +31,23 @@ function initializeAccountantPage() {
             );
 
             setTimeout(init, 200);
+
             return;
         }
 
         // SAFE INITIALIZATION FLOW
         if (typeof loadClasses === 'function') {
+
             loadClasses();
         }
 
         if (typeof initializeBulkFeeForm === 'function') {
+
             initializeBulkFeeForm();
         }
 
         if (typeof loadFeeRecords === 'function') {
+
             loadFeeRecords();
         }
 
@@ -52,9 +70,7 @@ function initializeBulkFeeForm() {
 
     if (!form) return;
 
-    // -------------------------------
     // STOP DOUBLE INITIALIZATION
-    // -------------------------------
     if (form.dataset.initialized === 'true') {
 
         console.log(
@@ -66,92 +82,113 @@ function initializeBulkFeeForm() {
 
     form.dataset.initialized = 'true';
 
-    // -------------------------------
+    // ===============================
     // SUBMIT HANDLER
-    // -------------------------------
+    // ===============================
     form.addEventListener(
         'submit',
         async function handleSubmit(e) {
 
             e.preventDefault();
 
-            // -------------------------------
-            // PREVENT DOUBLE CLICK
-            // -------------------------------
+            // PREVENT DOUBLE SUBMIT
             if (form.dataset.submitting === 'true') {
+
+                console.log(
+                    'Already submitting...'
+                );
+
                 return;
             }
 
             form.dataset.submitting = 'true';
 
-            const students =
-                window.selectedClassStudents || [];
+            const submitButton =
+                form.querySelector(
+                    'button[type="submit"]'
+                );
 
-            const className =
-                window.selectedClassName;
+            if (submitButton) {
 
-            // VALIDATION
-            if (!className) {
-
-                form.dataset.submitting = 'false';
-
-                alert('Select a class first');
-
-                return;
+                submitButton.disabled = true;
             }
-
-            if (!students.length) {
-
-                form.dataset.submitting = 'false';
-
-                alert('No students found');
-
-                return;
-            }
-
-            // FORM DATA
-            const feeData = {
-
-                feesPerTerm:
-                    Number(
-                        document.getElementById('fee-fees-per-term').value
-                    ) || 0,
-
-                balance:
-                    Number(
-                        document.getElementById('fee-bal').value
-                    ) || 0,
-
-                dueDate:
-                    document.getElementById('fee-due-date').value,
-
-                academicYear:
-                    document.getElementById('fee-academic-year').value,
-
-                academicTerm:
-                    document.getElementById('fee-academic-term').value,
-
-                notes:
-                    document.getElementById('fee-notes').value,
-
-                className
-            };
-
-            // IDS ONLY
-            const studentIds =
-                students.map(s => s._id);
-
-            console.log(
-                'Submitting bulk fee data:',
-                feeData
-            );
-
-            console.log(
-                'Student IDs:',
-                studentIds
-            );
 
             try {
+
+                const students =
+                    window.selectedClassStudents || [];
+
+                const className =
+                    window.selectedClassName;
+
+                // VALIDATION
+                if (!className) {
+
+                    throw new Error(
+                        'Select a class first'
+                    );
+                }
+
+                if (!students.length) {
+
+                    throw new Error(
+                        'No students found'
+                    );
+                }
+
+                // FORM DATA
+                const feeData = {
+
+                    feesPerTerm:
+                        Number(
+                            document.getElementById(
+                                'fee-fees-per-term'
+                            ).value
+                        ) || 0,
+
+                    balance:
+                        Number(
+                            document.getElementById(
+                                'fee-bal'
+                            ).value
+                        ) || 0,
+
+                    dueDate:
+                        document.getElementById(
+                            'fee-due-date'
+                        ).value,
+
+                    academicYear:
+                        document.getElementById(
+                            'fee-academic-year'
+                        ).value,
+
+                    academicTerm:
+                        document.getElementById(
+                            'fee-academic-term'
+                        ).value,
+
+                    notes:
+                        document.getElementById(
+                            'fee-notes'
+                        ).value,
+
+                    className
+                };
+
+                // IDS ONLY
+                const studentIds =
+                    students.map(s => s._id);
+
+                console.log(
+                    'Submitting bulk fee data:',
+                    feeData
+                );
+
+                console.log(
+                    'Student IDs:',
+                    studentIds
+                );
 
                 const response = await fetch(
                     'https://luckyjuniorschool.onrender.com/api/fees/bulk-create',
@@ -159,7 +196,9 @@ function initializeBulkFeeForm() {
                         method: 'POST',
 
                         headers: {
-                            'Content-Type': 'application/json',
+                            'Content-Type':
+                                'application/json',
+
                             'Authorization':
                                 `Bearer ${localStorage.getItem('token')}`
                         },
@@ -182,7 +221,8 @@ function initializeBulkFeeForm() {
                 if (!response.ok) {
 
                     throw new Error(
-                        result.error || 'Bulk save failed'
+                        result.error ||
+                        'Bulk save failed'
                     );
                 }
 
@@ -190,6 +230,7 @@ function initializeBulkFeeForm() {
                     `Fees added for ${studentIds.length} students`
                 );
 
+                // RESET FORM
                 form.reset();
 
                 // CLEAR GLOBALS
@@ -197,7 +238,9 @@ function initializeBulkFeeForm() {
                 window.selectedClassName = '';
 
                 // RELOAD TABLE
-                if (typeof loadFeeRecords === 'function') {
+                if (
+                    typeof loadFeeRecords === 'function'
+                ) {
 
                     loadFeeRecords();
                 }
@@ -210,38 +253,21 @@ function initializeBulkFeeForm() {
                 );
 
                 alert(
-                    err.message || 'Error saving fees'
+                    err.message ||
+                    'Error saving fees'
                 );
 
             } finally {
 
                 form.dataset.submitting = 'false';
+
+                if (submitButton) {
+
+                    submitButton.disabled = false;
+                }
             }
         }
     );
-}
-
-            // RESET GLOBALS
-            window.selectedClassStudents = [];
-            window.selectedClassName = '';
-
-            // RELOAD TABLE
-            if (typeof loadFeeRecords === 'function') {
-                loadFeeRecords();
-            }
-
-        } catch (err) {
-
-            console.error(
-                'Bulk fee save error:',
-                err
-            );
-
-            alert(
-                'Error saving fees: ' + err.message
-            );
-        }
-    }
 }
 
 
@@ -272,26 +298,3 @@ document.addEventListener(
         initializeAccountantPage();
     }
 );
-
-
-// ===============================
-// FALLBACK SAFE INIT
-// ===============================
-(function safeInit() {
-
-    const accountantSection =
-        document.getElementById(
-            'accountant-section'
-        );
-
-    if (!accountantSection) return;
-
-    if (
-        document.readyState === 'complete' ||
-        document.readyState === 'interactive'
-    ) {
-
-        initializeAccountantPage();
-    }
-
-})();
