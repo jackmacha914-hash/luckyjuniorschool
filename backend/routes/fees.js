@@ -499,16 +499,29 @@ router.post('/bulk-create', async (req, res) => {
     const Fee = require('../models/Fee');
 
     // -------------------------------
-    // BUILD FEES WITH CARRY FORWARD
+    // BUILD FEES WITH REAL CARRY FORWARD
     // -------------------------------
-    const feesToCreate = students.map(studentId => {
+    const feesToCreate = [];
 
+    for (const studentId of students) {
+
+      // 🔥 GET LAST UNPAID BALANCE FROM DB
+      const lastFee = await Fee.findOne({ student: studentId })
+        .sort({ createdAt: -1 });
+
+      let previousBalance = 0;
+
+      if (lastFee && lastFee.balance > 0) {
+        previousBalance = lastFee.balance;
+      }
+
+      // CURRENT TERM FEE
       const currentFee = Number(feeData.feesPerTerm) || 0;
-      const previousBalance = Number(feeData.previousBalance) || 0;
 
+      // TOTAL PAYABLE
       const totalPayable = previousBalance + currentFee;
 
-      return {
+      feesToCreate.push({
         student: studentId,
         className: feeData.className,
 
@@ -528,13 +541,13 @@ router.post('/bulk-create', async (req, res) => {
         description: feeData.notes || '',
         feeType: 'tuition',
 
-        // LEGACY SUPPORT (SAFE)
+        // LEGACY SUPPORT
         feesPerTerm: currentFee,
         bal: totalPayable,
 
         createdAt: new Date()
-      };
-    });
+      });
+    }
 
     console.log('Fees to create:', feesToCreate);
 
