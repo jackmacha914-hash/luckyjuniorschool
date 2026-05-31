@@ -12,112 +12,125 @@ const paymentSchema = new mongoose.Schema({
 const feeSchema = new mongoose.Schema({
   student: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   className: { type: String, required: true },
+
   academicTerm: { 
     type: String, 
     required: [true, 'Academic term is required'],
-    enum: {
-      values: ['Term 1', 'Term 2', 'Term 3'],
-      message: 'Please select a valid term: Term 1, Term 2, or Term 3'
-    }
+    enum: ['Term 1', 'Term 2', 'Term 3']
   },
+
   academicYear: { 
     type: String, 
     required: [true, 'Academic year is required'],
     match: [/^\d{4}\/\d{4}$/, 'Please provide a valid academic year in format YYYY/YYYY']
   },
-  
-  // Fee details
-  totalAmount: { 
-    type: Number, 
-    required: function() { return this.feesPerTerm == null; },
-    default: function() { 
-      // For backward compatibility, calculate from installments if they exist
-      if (this.feesPerTerm) return this.feesPerTerm;
-      if (this.firstInstallment || this.secondInstallment || this.thirdInstallment) {
-        return (this.firstInstallment || 0) + (this.secondInstallment || 0) + (this.thirdInstallment || 0);
-      }
-      return 0;
-    }
+
+  // ===============================
+  // NEW CARRY FORWARD SYSTEM
+  // ===============================
+  previousBalance: {
+    type: Number,
+    default: 0
   },
+
+  currentTermFee: {
+    type: Number,
+    default: 0
+  },
+
+  totalPayable: {
+    type: Number,
+    default: 0
+  },
+
+  // ===============================
+  // PAYMENT TRACKING
+  // ===============================
   paidAmount: { 
     type: Number, 
     default: 0,
     min: 0
   },
+
   balance: { 
     type: Number, 
-    default: function() {
-      return Math.max(0, (this.totalAmount || 0) - (this.paidAmount || 0));
-    }
+    default: 0
   },
+
   dueDate: { type: Date },
-  
-  // Payment history
+
   payments: [paymentSchema],
-  
-  // Status tracking
+
+  // ===============================
+  // STATUS
+  // ===============================
   status: {
     type: String,
-    enum: {
-      values: ['pending', 'partially_paid', 'paid', 'overdue', 'cancelled'],
-      message: "'{VALUE}' is not a valid status. Must be one of: 'pending', 'partially_paid', 'paid', 'overdue', 'cancelled'"
-    },
-    default: 'pending',
-    set: function(status) {
-      // Handle case-insensitive status and 'Pending' vs 'pending'
-      if (typeof status === 'string') {
-        status = status.toLowerCase();
-        if (status === 'pending') return 'pending';
-        if (status === 'partially_paid' || status === 'partially paid') return 'partially_paid';
-        if (status === 'paid') return 'paid';
-        if (status === 'overdue') return 'overdue';
-        if (status === 'cancelled' || status === 'canceled') return 'cancelled';
-      }
-      return status; // Fall back to original or default
-    }
+    enum: ['pending', 'partially_paid', 'paid', 'overdue', 'cancelled'],
+    default: 'pending'
   },
-  
-  // Additional metadata
+
   description: String,
-  feeType: { type: String, default: 'tuition' }, // tuition, library, sports, etc.
-  
-  // Legacy fields (for backward compatibility)
+  feeType: { type: String, default: 'tuition' },
+
+  // ===============================
+  // LEGACY SUPPORT (DO NOT REMOVE)
+  // ===============================
   feesPerTerm: Number,
   firstInstallment: Number,
   secondInstallment: Number,
   thirdInstallment: Number,
   bal: Number,
   amount: Number,
-  
-  // Timestamps
+
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
 
-// Update balance and status before saving
+
+// ===============================
+// PRE-SAVE LOGIC (CARRY FORWARD FIX)
+// ===============================
 feeSchema.pre('save', function(next) {
-  this.balance = this.totalAmount - this.paidAmount;
-  
-  // Update status based on payment
+
+  // fallback for old system
+  this.currentTermFee =
+    this.currentTermFee || this.feesPerTerm || 0;
+
+  // TOTAL PAYABLE = CARRY FORWARD + CURRENT TERM
+  this.totalPayable =
+    (this.previousBalance || 0) +
+    (this.currentTermFee || 0);
+
+  // BALANCE CALCULATION
+  this.balance =
+    this.totalPayable - (this.paidAmount || 0);
+
+  // STATUS LOGIC
   if (this.paidAmount <= 0) {
     this.status = 'pending';
-  } else if (this.paidAmount >= this.totalAmount) {
+  } 
+  else if (this.paidAmount >= this.totalPayable) {
     this.status = 'paid';
-  } else {
+  } 
+  else {
     this.status = 'partially_paid';
-    
-    // Check if overdue
+
     if (this.dueDate && new Date() > this.dueDate) {
       this.status = 'overdue';
     }
   }
-  
+
   this.updatedAt = new Date();
   next();
 });
 
-// Add a method to record a payment
+
+// ===============================
+// PAYMENT METHOD FIXED
+// ===============================
 feeSchema.methods.recordPayment = async function(paymentData) {
+
   const payment = {
     amount: paymentData.amount,
     paymentDate: paymentData.paymentDate || new Date(),
@@ -126,15 +139,24 @@ feeSchema.methods.recordPayment = async function(paymentData) {
     notes: paymentData.notes,
     recordedBy: paymentData.recordedBy
   };
-  
+
   this.payments.push(payment);
-  this.paidAmount = (this.paidAmount || 0) + payment.amount;
-  
+
+  this.paidAmount =
+    (this.paidAmount || 0) + Number(payment.amount);
+
+  // RECALCULATE BALANCE
+  this.balance =
+    (this.totalPayable || 0) - this.paidAmount;
+
   await this.save();
   return this;
 };
 
-// Indexes for better query performance
+
+// ===============================
+// INDEXES
+// ===============================
 feeSchema.index({ student: 1, status: 1 });
 feeSchema.index({ className: 1, status: 1 });
 feeSchema.index({ dueDate: 1 });
