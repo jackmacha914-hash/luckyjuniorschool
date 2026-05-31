@@ -1,4 +1,3 @@
-```javascript id="xg4l8u"
 // ===============================
 // CLASS MANAGEMENT
 // js/finance/classes.js
@@ -15,11 +14,17 @@ function loadClasses() {
         document.getElementById('fee-class-name');
 
     if (!classSelect) {
+        console.error('Could not find class select element');
+        return;
+    }
 
-        console.error(
-            'Could not find class select element'
-        );
+    // ✅ SAFE GLOBAL ACCESS
+    const groups = window.CLASS_GROUPS;
 
+    if (!groups) {
+        console.error('CLASS_GROUPS not found in config.js');
+        classSelect.innerHTML =
+            '<option value="">Configuration error</option>';
         return;
     }
 
@@ -30,7 +35,7 @@ function loadClasses() {
             '<option value="">Select a class</option>';
 
         // Build grouped classes
-        CLASS_GROUPS.forEach(group => {
+        groups.forEach(group => {
 
             const optgroup =
                 document.createElement('optgroup');
@@ -53,27 +58,14 @@ function loadClasses() {
 
         console.log('Classes loaded successfully');
 
-        // Enable select
         classSelect.disabled = false;
 
-        // Prevent duplicate listeners
-        classSelect.removeEventListener(
-            'change',
-            handleClassChange
-        );
-
-        // Add listener
-        classSelect.addEventListener(
-            'change',
-            handleClassChange
-        );
+        // ✅ FIX: avoid duplicate listeners safely
+        classSelect.onchange = handleClassChange;
 
     } catch (error) {
 
-        console.error(
-            'Error loading classes:',
-            error
-        );
+        console.error('Error loading classes:', error);
 
         classSelect.innerHTML =
             '<option value="">Error loading classes</option>';
@@ -86,56 +78,46 @@ function loadClasses() {
 async function handleClassChange(event) {
 
     const classSelect = event.target;
-
-    const className =
-        classSelect.value;
+    const className = classSelect.value;
 
     const studentSelect =
         document.getElementById('fee-student-id');
 
-    // Validation
     if (!studentSelect) {
-
-        console.error(
-            'Student select element not found'
-        );
-
+        console.error('Student select element not found');
         return;
     }
 
-    // No class selected
+    const messages = window.APP_MESSAGES || {
+        selectClass: 'Select a class first',
+        loadingStudents: 'Loading students...',
+        selectStudent: 'Select a student',
+        noStudents: 'No students found'
+    };
+
     if (!className) {
 
         studentSelect.disabled = true;
 
         studentSelect.innerHTML =
-            `<option value="">
-                ${APP_MESSAGES.selectClass}
-            </option>`;
+            `<option value="">${messages.selectClass}</option>`;
 
         return;
     }
 
-    // Loading state
     studentSelect.disabled = true;
 
     studentSelect.innerHTML =
-        `<option value="">
-            ${APP_MESSAGES.loadingStudents}
-        </option>`;
+        `<option value="">${messages.loadingStudents}</option>`;
 
     try {
 
-        // Token
         const token = getAuthToken();
 
         if (!token) {
-            throw new Error(
-                'Authentication token missing'
-            );
+            throw new Error('Authentication token missing');
         }
 
-        // Fetch students
         const response = await fetch(
             `${API_BASE_URL}/students/class/${encodeURIComponent(className)}`,
             {
@@ -144,53 +126,33 @@ async function handleClassChange(event) {
             }
         );
 
-        // HTTP Error
         if (!response.ok) {
-
-            throw new Error(
-                `HTTP error! status: ${response.status}`
-            );
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        // Parse response
         const data = await response.json();
 
-        console.log(
-            'Students API Response:',
-            data
-        );
+        console.log('Students API Response:', data);
 
-        // Handle different API formats
         const students = Array.isArray(data)
             ? data
             : (data.data || []);
 
-        // Validation
         if (!Array.isArray(students)) {
-
-            throw new Error(
-                'Invalid students data format received from server'
-            );
+            throw new Error('Invalid students data format');
         }
 
-        // Reset select
         studentSelect.innerHTML =
-            `<option value="">
-                ${APP_MESSAGES.selectStudent}
-            </option>`;
+            `<option value="">${messages.selectStudent}</option>`;
 
-        // Empty class
         if (students.length === 0) {
 
             studentSelect.innerHTML =
-                `<option value="">
-                    ${APP_MESSAGES.noStudents}
-                </option>`;
+                `<option value="">${messages.noStudents}</option>`;
 
             return;
         }
 
-        // Add students
         students.forEach(student => {
 
             try {
@@ -198,63 +160,40 @@ async function handleClassChange(event) {
                 const option =
                     document.createElement('option');
 
-                // Student ID
                 option.value =
-                    student._id ||
-                    student.id ||
-                    '';
+                    student._id || student.id || '';
 
-                // Student name
-                const displayName =
+                const name =
                     student.fullName ||
                     student.name ||
                     'Unknown Student';
 
-                // Admission number
-                const admissionNumber =
+                const adm =
                     student.admissionNumber ||
                     student.admNo ||
                     '';
 
-                // Final display
                 option.textContent =
-                    admissionNumber
-                        ? `${displayName} (${admissionNumber})`
-                        : displayName;
+                    adm ? `${name} (${adm})` : name;
 
                 studentSelect.appendChild(option);
 
-            } catch (studentError) {
-
-                console.error(
-                    'Error processing student:',
-                    student,
-                    studentError
-                );
+            } catch (err) {
+                console.error('Student parse error:', err);
             }
         });
 
-        // Enable select
         studentSelect.disabled = false;
 
-        console.log(
-            `${students.length} students loaded successfully`
-        );
+        console.log(`${students.length} students loaded`);
 
     } catch (error) {
 
-        console.error(
-            'Error loading students:',
-            error
-        );
+        console.error('Error loading students:', error);
 
-        // Error state
         studentSelect.innerHTML =
-            `<option value="">
-                Error loading students
-            </option>`;
+            `<option value="">Error loading students</option>`;
 
-        // Load fallback mock data
         loadMockStudents(studentSelect);
     }
 }
@@ -264,29 +203,23 @@ async function handleClassChange(event) {
 // -------------------------------
 function loadMockStudents(selectElement) {
 
+    if (!selectElement) {
+        console.error('Select element missing');
+        return;
+    }
+
     try {
 
-        if (!selectElement) {
+        const mock = window.MOCK_STUDENTS || [];
 
-            console.error(
-                'Select element missing'
-            );
-
-            return;
-        }
-
-        // Reset select
         selectElement.innerHTML =
-            '<option value="">Select a student (using test data)</option>';
+            '<option value="">Select a student (test data)</option>';
 
-        // Use mock students from config
-        MOCK_STUDENTS.forEach(student => {
+        mock.forEach(student => {
 
-            const option =
-                document.createElement('option');
+            const option = document.createElement('option');
 
-            option.value =
-                student.id;
+            option.value = student.id;
 
             option.textContent =
                 `${student.fullName} (${student.admissionNumber})`;
@@ -294,19 +227,13 @@ function loadMockStudents(selectElement) {
             selectElement.appendChild(option);
         });
 
-        // Enable dropdown
         selectElement.disabled = false;
 
-        console.log(
-            'Loaded mock student data'
-        );
+        console.log('Mock students loaded');
 
     } catch (error) {
 
-        console.error(
-            'Error loading mock students:',
-            error
-        );
+        console.error('Mock load error:', error);
 
         selectElement.innerHTML =
             '<option value="">Error loading test data</option>';
@@ -314,16 +241,10 @@ function loadMockStudents(selectElement) {
 }
 
 // -------------------------------
-// Assign Global Functions
+// Global Exposure
 // -------------------------------
 window.loadClasses = loadClasses;
 window.handleClassChange = handleClassChange;
 window.loadMockStudents = loadMockStudents;
 
-// -------------------------------
-// Classes Loaded
-// -------------------------------
-console.log(
-    'Finance Classes Module Loaded Successfully'
-);
-```
+console.log('Finance Classes Module Loaded Successfully');
