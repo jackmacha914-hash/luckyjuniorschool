@@ -1,4 +1,4 @@
-// ===============================
+// =============================== 
 // CLASS MANAGEMENT (BULK VERSION)
 // ===============================
 
@@ -20,45 +20,55 @@ function loadClasses() {
     try {
 
         classSelect.innerHTML =
-            '<option value="">Select a class</option>';
+            '<option value="">Loading classes...</option>';
 
-        // SAFE CHECK (prevents crash)
-        const groups = window.CLASS_GROUPS || [];
+        fetch('https://luckyjuniorschool.onrender.com/api/students')
+            .then(res => res.json())
+            .then(data => {
 
-        groups.forEach(group => {
+                console.log('STUDENTS RAW:', data);
 
-            const optgroup =
-                document.createElement('optgroup');
+                const students =
+                    Array.isArray(data)
+                        ? data
+                        : (data.data || data.students || []);
 
-            optgroup.label = group.label;
+                // extract unique classes
+                const uniqueClasses = [...new Set(
+                    students.map(s => s.class).filter(Boolean)
+                )];
 
-            group.classes.forEach(cls => {
+                console.log('UNIQUE CLASSES:', uniqueClasses);
 
-                const option =
-                    document.createElement('option');
+                classSelect.innerHTML =
+                    '<option value="">Select a class</option>';
 
-                option.value = cls.value;
-                option.textContent = cls.text;
+                uniqueClasses.forEach(cls => {
 
-                optgroup.appendChild(option);
+                    const option = document.createElement('option');
+                    option.value = cls;
+                    option.textContent = cls;
+
+                    classSelect.appendChild(option);
+                });
+
+                classSelect.disabled = false;
+
+                classSelect.removeEventListener(
+                    'change',
+                    handleBulkClassChange
+                );
+
+                classSelect.addEventListener(
+                    'change',
+                    handleBulkClassChange
+                );
+            })
+            .catch(err => {
+                console.error('Error loading classes:', err);
+                classSelect.innerHTML =
+                    '<option value="">Error loading classes</option>';
             });
-
-            classSelect.appendChild(optgroup);
-        });
-
-        classSelect.disabled = false;
-
-        classSelect.removeEventListener(
-            'change',
-            handleBulkClassChange
-        );
-
-        classSelect.addEventListener(
-            'change',
-            handleBulkClassChange
-        );
-
-        console.log('Classes loaded successfully');
 
     } catch (error) {
 
@@ -68,7 +78,6 @@ function loadClasses() {
             '<option value="">Error loading classes</option>';
     }
 }
-
 // -------------------------------
 // Handle Class Change
 // -------------------------------
@@ -77,74 +86,154 @@ async function handleBulkClassChange(event) {
     const selectedClass =
         event.target.value;
 
+    // RESET
     window.selectedClassStudents = [];
     window.selectedClassName = '';
 
-    if (!selectedClass) return;
+    if (!selectedClass) {
+        return;
+    }
 
     try {
 
-        console.log('Loading students for:', selectedClass);
-
-        window.selectedClassName = selectedClass;
-
-        // ✅ FIXED: backend filtered endpoint (BEST PRACTICE)
-        const response = await fetch(
-            `https://luckyjuniorschool.onrender.com/api/students/class/${encodeURIComponent(selectedClass)}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }
+        console.log(
+            'Loading students for:',
+            selectedClass
         );
 
+        // SAVE CLASS
+        window.selectedClassName =
+            selectedClass;
+
+       // FETCH STUDENTS
+const response = await fetch(
+    `https://luckyjuniorschool.onrender.com/api/students`,
+    {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+);
+
         if (!response.ok) {
-            throw new Error(`HTTP Error ${response.status}`);
+
+            throw new Error(
+                `HTTP Error ${response.status}`
+            );
         }
 
-        const result = await response.json();
+        // RESPONSE
+        const result =
+            await response.json();
 
-        console.log('FULL API RESULT:', result);
+        console.log(
+            'FULL API RESULT:',
+            result
+        );
 
-        // ✅ ALWAYS NORMALIZE DATA SAFELY
-        const students =
-            Array.isArray(result)
-                ? result
-                : (result.data || result.students || []);
+        console.log(
+            'RESULT TYPE:',
+            typeof result
+        );
 
-        window.selectedClassStudents = students;
+        console.log(
+            'RESULT KEYS:',
+            Object.keys(result)
+        );
 
-        console.log('FILTERED STUDENTS:', students);
-        console.log(`Loaded ${students.length} students`);
+        console.log(
+            'ENTIRE RESPONSE:',
+            JSON.stringify(result, null, 2)
+        );
 
-        // ❌ removed alert (too noisy)
-        console.log(`${students.length} students loaded`);
+        // GET STUDENTS ARRAY
+        let students = [];
+
+        if (Array.isArray(result)) {
+
+            students = result;
+
+        } else if (Array.isArray(result.data)) {
+
+            students = result.data;
+
+        } else if (Array.isArray(result.students)) {
+
+            students = result.students;
+        }
+
+        // FILTER BY CLASS
+        students = students.filter(student => {
+
+            return (
+                student.class === selectedClass ||
+                student.className === selectedClass ||
+                student.grade === selectedClass
+            );
+        });
+
+        // SAVE GLOBALLY
+        window.selectedClassStudents =
+            students;
+
+        console.log(
+            'FILTERED STUDENTS:',
+            students
+        );
+
+        console.log(
+            `Loaded ${students.length} students`
+        );
+
+        // SUCCESS MESSAGE
+        alert(
+            `${students.length} students loaded`
+        );
 
     } catch (error) {
 
-        console.error('Error loading students:', error);
+        console.error(
+            'Error loading students:',
+            error
+        );
 
         window.selectedClassStudents = [];
         window.selectedClassName = '';
+
+        alert(
+            'Failed to load students'
+        );
     }
 }
 
 // -------------------------------
 // GLOBAL ACCESS
 // -------------------------------
-window.loadClasses = loadClasses;
-window.handleBulkClassChange = handleBulkClassChange;
+window.loadClasses =
+    loadClasses;
+
+window.handleBulkClassChange =
+    handleBulkClassChange;
 
 // -------------------------------
 // AUTO LOAD
 // -------------------------------
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Bulk fee page ready');
-    loadClasses();
-});
+document.addEventListener(
+    'DOMContentLoaded',
+    () => {
+
+        console.log(
+            'Bulk fee page ready'
+        );
+
+        loadClasses();
+    }
+);
 
 // -------------------------------
 // MODULE LOADED
 // -------------------------------
-console.log('Bulk Fee Class Module Loaded');
+console.log(
+    'Bulk Fee Class Module Loaded'
+);
