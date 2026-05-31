@@ -436,11 +436,13 @@ if (this.feesYearFilter) {
                 fee.amountPaid || 
                 fee.paid || 
                 fee.paymentAmount || 
+                (fee.payments?.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0)) ||
                 0
             );
         }
         
         const totalFees = parseFloat(
+            fee.totalPayable ||
             fee.totalFees || 
             fee.amount || 
             fee.totalAmount || 
